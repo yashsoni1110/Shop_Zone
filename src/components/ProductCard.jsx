@@ -35,7 +35,7 @@ const ProductCard = ({ product }) => {
           group: 'group' // enabling group hover
         }}
       >
-        <div style={{ position: 'relative', paddingTop: '100%', background: 'white', overflow: 'hidden' }}>
+        <div style={{ position: 'relative', paddingTop: '100%', background: 'black', overflow: 'hidden' }}>
           <motion.img
             whileHover={{ scale: 1.05 }}
             transition={{ duration: 0.4 }}
