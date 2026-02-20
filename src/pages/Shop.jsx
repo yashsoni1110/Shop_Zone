@@ -112,7 +112,7 @@ const Shop = () => {
               }}
             >
               <Link to={`/product/${product.id}`} style={{ textDecoration: 'none', color: 'inherit', flex: 1, display: 'flex', flexDirection: 'column' }}>
-                <div style={{ position: 'relative', paddingTop: '100%', background: 'white', overflow: 'hidden' }}>
+                <div style={{ position: 'relative', paddingTop: '100%', overflow: 'hidden' }}>
                   <img 
                     src={product.thumbnail} 
                     alt={product.title} 
@@ -131,8 +131,8 @@ const Shop = () => {
                     position: 'absolute', 
                     top: '10px', 
                     right: '10px', 
-                    background: 'rgba(255,255,255,0.9)', 
-                    color: 'black', 
+                    // background: 'rgba(255, 255, 255, 0.9)', 
+                    color: 'white', 
                     padding: '4px 8px', 
                     borderRadius: '4px', 
                     fontWeight: 'bold', 
