@@ -62,7 +62,7 @@ const Cart = () => {
                     gap: '1.5rem'
                   }}
                 >
-                  <div style={{ background: 'white', padding: '0.5rem', borderRadius: '0.5rem', width: '80px', height: '80px', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+                  <div style={{ background: 'white', padding: '0.1rem', borderRadius: '1rem', width: '80px', height: '80px', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
                     <img src={item.thumbnail} alt={item.title} style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }} />
                   </div>
                   
