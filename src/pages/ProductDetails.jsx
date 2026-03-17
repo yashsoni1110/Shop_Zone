@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { useCart } from '../context/CartContext';
+import { useDispatch } from 'react-redux';
+import { addToCart } from '../redux/cartSlice';
 import { motion } from 'framer-motion';
 import { ArrowLeft, ShoppingCart, Star, Truck, Shield } from 'lucide-react';
 import toast from 'react-hot-toast';
@@ -9,7 +10,7 @@ const ProductDetails = () => {
   const { id } = useParams();
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
-  const { addToCart } = useCart();
+  const dispatch = useDispatch();
 
   useEffect(() => {
     fetch(`https://dummyjson.com/products/${id}`)
@@ -21,7 +22,7 @@ const ProductDetails = () => {
   }, [id]);
 
   const handleAddToCart = () => {
-    addToCart(product);
+    dispatch(addToCart(product));
     toast.success(`${product.title} added to cart!`, {
       style: {
         background: 'rgba(30, 41, 59, 0.9)',

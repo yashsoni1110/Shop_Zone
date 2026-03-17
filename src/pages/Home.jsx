@@ -1,31 +1,34 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { motion } from 'framer-motion';
-import { ArrowRight, Star, TrendingUp, Smartphone, Home as HomeIcon, Shirt, Zap, ShieldCheck, Truck, Clock } from 'lucide-react';
+import { motion, useScroll, useTransform } from 'framer-motion';
+import { ArrowRight, Star, TrendingUp, Smartphone, Home as HomeIcon, Shirt, Zap, ShieldCheck, Truck, Clock, Sparkles, ShoppingBag } from 'lucide-react';
 import ProductCard from '../components/ProductCard';
 
 const Home = () => {
   const [featuredProducts, setFeaturedProducts] = useState([]);
+  const { scrollY } = useScroll();
+  const y1 = useTransform(scrollY, [0, 500], [0, 200]);
+  const opacity = useTransform(scrollY, [0, 300], [1, 0]);
 
   useEffect(() => {
-    fetch('https://dummyjson.com/products?limit=8&skip=10') // Fetching more items for a better grid
+    fetch('https://dummyjson.com/products?limit=8&skip=10')
       .then(res => res.json())
       .then(data => setFeaturedProducts(data.products));
   }, []);
 
   const fadeInUp = {
-    hidden: { opacity: 0, y: 20 },
-    visible: { opacity: 1, y: 0, transition: { duration: 0.6 } }
+    hidden: { opacity: 0, y: 30 },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.8, ease: [0.22, 1, 0.36, 1] } }
   };
 
   const stagger = {
-    visible: { transition: { staggerChildren: 0.1 } }
+    visible: { transition: { staggerChildren: 0.15 } }
   };
 
   return (
     <div className="home-container" style={{ overflowX: 'hidden' }}>
       
-      {/* Hero Section */}
+      {/* Cinematic Hero Section - Reduced height for better organization */}
       <section style={{ 
         minHeight: '90vh', 
         display: 'flex', 
@@ -33,107 +36,128 @@ const Home = () => {
         justifyContent: 'center', 
         position: 'relative',
         padding: '0 2rem',
-        marginTop: '-80px', // Pull up behind navbar if transparent
-        paddingTop: '80px'
+        marginTop: '-85px',
+        background: 'radial-gradient(circle at 50% 50%, rgba(129, 140, 248, 0.15) 0%, transparent 60%)'
       }}>
-        {/* Abstract Background Elements */}
-        <div style={{
-          position: 'absolute',
-          top: '20%',
-          left: '10%',
-          width: '50vw',
-          height: '50vw',
-          background: 'radial-gradient(circle, rgba(99, 102, 241, 0.15) 0%, transparent 70%)',
-          zIndex: -1,
-          filter: 'blur(80px)',
-          borderRadius: '50%',
-          animation: 'pulse 10s infinite alternate'
-        }} />
-        <div style={{
-          position: 'absolute',
-          bottom: '10%',
-          right: '5%',
-          width: '40vw',
-          height: '40vw',
-          background: 'radial-gradient(circle, rgba(168, 85, 247, 0.15) 0%, transparent 70%)',
-          zIndex: -1,
-          filter: 'blur(80px)',
-          borderRadius: '50%',
-          animation: 'pulse 12s infinite alternate-reverse'
-        }} />
+        {/* Animated Background Elements */}
+        <motion.div style={{ y: y1, opacity }} className="hero-decor">
+          <div style={{
+            position: 'absolute',
+            top: '10%',
+            left: '5%',
+            width: '40vw',
+            height: '40vw',
+            background: 'radial-gradient(circle, rgba(129, 140, 248, 0.15) 0%, transparent 60%)',
+            filter: 'blur(100px)',
+            borderRadius: '50%',
+          }} />
+          <div style={{
+            position: 'absolute',
+            bottom: '10%',
+            right: '10%',
+            width: '35vw',
+            height: '35vw',
+            background: 'radial-gradient(circle, rgba(192, 132, 252, 0.15) 0%, transparent 60%)',
+            filter: 'blur(100px)',
+            borderRadius: '50%',
+          }} />
+        </motion.div>
 
-        <div className="main-content" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', maxWidth: '1000px' }}>
+        <div className="main-content" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', maxWidth: '1000px', position: 'relative', zIndex: 10 }}>
           
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.8 }}
           >
             <div style={{ 
               display: 'inline-flex', 
               alignItems: 'center', 
-              gap: '8px', 
-              background: 'rgba(255, 255, 255, 0.05)', 
-              color: 'var(--text-light)', 
+              gap: '10px', 
+              background: 'var(--primary-glow)', 
+              color: 'white', 
               padding: '8px 20px', 
               borderRadius: '9999px',
-              fontSize: '0.875rem',
-              fontWeight: '500',
-              marginBottom: '2rem',
-              border: '1px solid rgba(255, 255, 255, 0.1)',
-              backdropFilter: 'blur(10px)'
+              fontSize: '0.85rem',
+              fontWeight: 800,
+              marginBottom: '1.5rem',
+              border: '1px solid var(--border-soft)',
+              backdropFilter: 'blur(10px)',
+              boxShadow: '0 8px 20px rgba(0,0,0,0.2)'
             }}>
-              <Zap size={16} className="text-gradient" />
-              <span>The Future of Shopping is Here</span>
+              <Sparkles size={16} fill="white" />
+              <span style={{ letterSpacing: '1.5px', textTransform: 'uppercase' }}>New Season Arrival</span>
             </div>
 
-            <h1 style={{ marginBottom: '1.5rem' }}>
-              Experience the <br />
-              <span className="text-gradient">Epiphany of Luxury.</span>
+            <h1 style={{ marginBottom: '1.5rem', textShadow: '0 10px 40px rgba(0,0,0,0.4)' }}>
+              Elevate Your <br />
+              <span className="text-gradient">Daily Existence.</span>
             </h1>
             
-            <p style={{ fontSize: '1.25rem', color: 'var(--text-muted)', marginBottom: '3rem', maxWidth: '600px', margin: '0 auto 3rem auto', lineHeight: '1.6' }}>
-              Curated collections that define sophistication. Upgrade your lifestyle with our premium selection of technology, fashion, and home essentials.
+            <p style={{ fontSize: '1.25rem', color: 'var(--text-secondary)', marginBottom: '3rem', maxWidth: '650px', margin: '0 auto 3rem auto', lineHeight: '1.6', fontWeight: 500 }}>
+              Discover a meticulously curated collection where cutting-edge innovation meets timeless elegance. Designed for those who demand excellence.
             </p>
 
             <div style={{ display: 'flex', gap: '20px', justifyContent: 'center', flexWrap: 'wrap' }}>
               <Link to="/shop" style={{ textDecoration: 'none' }}>
-                <motion.button 
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  className="btn-primary"
-                  style={{ padding: '1rem 3rem', fontSize: '1.125rem' }}
-                >
-                  Explore Collection
-                </motion.button>
+                <button className="btn-primary" style={{ padding: '1rem 3.5rem', fontSize: '1.1rem' }}>
+                  Shop Collection <ArrowRight size={20} />
+                </button>
               </Link>
               <Link to="/about-us" style={{ textDecoration: 'none' }}>
-                <motion.button 
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  className="btn-secondary"
-                  style={{ padding: '1rem 3rem', fontSize: '1.125rem' }}
-                >
-                  Our Story
-                </motion.button>
+                <button className="btn-secondary" style={{ padding: '1rem 3.5rem', fontSize: '1.1rem' }}>
+                  Our Vision
+                </button>
               </Link>
             </div>
           </motion.div>
         </div>
       </section>
 
-      {/* Categories Section - Clean & Geometric */}
+      {/* Trust Badges - More Compact */}
+      <div className="main-content" style={{ marginTop: '-4rem', position: 'relative', zIndex: 20 }}>
+        <motion.div 
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          className="glass-heavy"
+          style={{ 
+            borderRadius: '2rem', 
+            padding: '2.5rem 2rem',
+            display: 'grid', 
+            gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', 
+            gap: '2.5rem',
+            textAlign: 'center',
+            border: '1px solid var(--border-soft)'
+          }}
+        >
+          {[
+            { title: 'Authenticated', desc: '100% Genuine Prods', icon: <ShieldCheck size={32} color="var(--accent-emerald)" /> },
+            { title: 'Global Shipping', desc: 'Fast track delivery', icon: <Truck size={32} color="var(--primary)" /> },
+            { title: 'Concierge', desc: '24/7 Expert support', icon: <Clock size={32} color="var(--accent-gold)" /> },
+            { title: 'Secure Pay', desc: 'Fully encrypted', icon: <Zap size={32} color="var(--secondary)" /> }
+          ].map((feature, i) => (
+            <div key={i}>
+              <div style={{ marginBottom: '1rem' }}>{feature.icon}</div>
+              <h4 style={{ fontSize: '1.1rem', marginBottom: '0.4rem', color: 'white', fontWeight: 700 }}>{feature.title}</h4>
+              <p style={{ fontSize: '0.85rem' }}>{feature.desc}</p>
+            </div>
+          ))}
+        </motion.div>
+      </div>
+
+      {/* Category Showcase - Better Organization */}
       <section className="section-padding">
         <div className="main-content">
           <motion.div 
             initial="hidden"
             whileInView="visible"
-            viewport={{ once: true }}
+            viewport={{ once: true, margin: "-50px" }}
             variants={fadeInUp}
-            style={{ textAlign: 'center', marginBottom: '4rem' }}
+            style={{ textAlign: 'center', marginBottom: '3.5rem' }}
           >
-            <h2>Curated Categories</h2>
-            <p>Explore our wide range of premium products.</p>
+            <h2 style={{ marginBottom: '0.75rem' }}>Curated Selections</h2>
+            <p style={{ maxWidth: '550px', margin: '0 auto' }}>Explore hand-picked arrivals from around the globe.</p>
           </motion.div>
 
           <motion.div 
@@ -142,31 +166,32 @@ const Home = () => {
             whileInView="visible"
             viewport={{ once: true }}
             variants={stagger}
+            style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '2rem' }}
           >
             {[
-              { name: 'Technology', icon: <Smartphone size={32} />, color: '#3b82f6', link: '/shop?cat=smartphones', desc: 'Latest gadgets & devices' },
-              { name: 'Home & Living', icon: <HomeIcon size={32} />, color: '#10b981', link: '/shop?cat=home-decoration', desc: 'Decor for modern homes' },
-              { name: 'Fashion', icon: <Shirt size={32} />, color: '#f43f5e', link: '/shop?cat=mens-shirts', desc: 'Trending styles for all' },
-              { name: 'Trending', icon: <TrendingUp size={32} />, color: '#8b5cf6', link: '/shop', desc: 'What everyone is buying' }
+              { name: 'Technology', icon: <Smartphone size={36} />, color: '#818cf8', link: '/shop?cat=smartphones', desc: 'Precision engineering' },
+              { name: 'Sanctuary', icon: <HomeIcon size={36} />, color: '#34d399', link: '/shop?cat=home-decoration', desc: 'Refining your space' },
+              { name: 'Couture', icon: <Shirt size={36} />, color: '#fb7185', link: '/shop?cat=mens-shirts', desc: 'The modern silhouette' },
+              { name: 'Essentials', icon: <ShoppingBag size={36} />, color: '#c084fc', link: '/shop', desc: 'Perfected essentials' }
             ].map((cat, i) => (
               <Link to={cat.link} key={i} style={{ textDecoration: 'none', color: 'inherit' }}>
                 <motion.div 
                   variants={fadeInUp}
-                  whileHover={{ y: -5 }}
+                  whileHover={{ y: -8, background: 'rgba(255,255,255,0.04)' }}
                   className="glass"
                   style={{ 
-                    padding: '2.5rem', 
+                    padding: '2rem', 
                     borderRadius: '1.5rem', 
-                    textAlign: 'left',
                     height: '100%',
                     display: 'flex',
                     flexDirection: 'column',
                     justifyContent: 'space-between',
-                    minHeight: '200px'
+                    minHeight: '220px',
+                    border: '1px solid var(--border-soft)'
                   }}
                 >
                   <div style={{ 
-                    background: 'rgba(255,255,255,0.05)', 
+                    background: `${cat.color}15`, 
                     width: '60px', 
                     height: '60px', 
                     borderRadius: '16px', 
@@ -175,13 +200,13 @@ const Home = () => {
                     justifyContent: 'center',
                     marginBottom: '1.5rem',
                     color: cat.color,
-                    border: '1px solid rgba(255,255,255,0.05)'
+                    border: `1px solid ${cat.color}30`
                   }}>
                     {cat.icon}
                   </div>
                   <div>
-                    <h3 style={{ fontSize: '1.5rem', marginBottom: '0.5rem' }}>{cat.name}</h3>
-                    <p style={{ fontSize: '0.9rem', marginBottom: '0' }}>{cat.desc}</p>
+                    <h3 style={{ fontSize: '1.4rem', marginBottom: '0.5rem', color: 'white' }}>{cat.name}</h3>
+                    <p style={{ fontSize: '0.9rem' }}>{cat.desc}</p>
                   </div>
                 </motion.div>
               </Link>
@@ -190,21 +215,25 @@ const Home = () => {
         </div>
       </section>
 
-      {/* Featured Products */}
-      <section className="section-padding" style={{ background: 'linear-gradient(to bottom, transparent, rgba(0,0,0,0.2) 20%, rgba(0,0,0,0.2) 80%, transparent)' }}>
+      {/* Popular Arrivals Grid */}
+      <section className="section-padding" style={{ position: 'relative', paddingTop: '2rem' }}>
+         <div style={{ position: 'absolute', top: '20%', right: '0', width: '300px', height: '600px', background: 'var(--primary-glow)', filter: 'blur(150px)', opacity: 0.1, zIndex: -1 }} />
+
         <div className="main-content">
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'end', marginBottom: '3rem', flexWrap: 'wrap', gap: '1rem' }}>
-            <div>
-              <h2>New Arrivals</h2>
-              <p>Freshly stocked premium items.</p>
-            </div>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '3rem', flexWrap: 'wrap', gap: '1.5rem' }}>
+            <motion.div
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true }}
+              variants={fadeInUp}
+            >
+              <h2 style={{ marginBottom: '0.5rem' }}>Trending Now</h2>
+              <p>Top-tier selections gaining momentum.</p>
+            </motion.div>
             <Link to="/shop" style={{ textDecoration: 'none' }}>
-              <motion.div 
-                whileHover={{ x: 5 }}
-                style={{ display: 'flex', alignItems: 'center', gap: '5px', color: 'var(--primary)', fontWeight: '600' }}
-              >
-                View Collection <ArrowRight size={20} />
-              </motion.div>
+              <button className="btn-secondary" style={{ padding: '0.7rem 1.75rem', fontSize: '0.9rem' }}>
+                View Catalog <ArrowRight size={18} />
+              </button>
             </Link>
           </div>
 
@@ -216,45 +245,52 @@ const Home = () => {
             variants={stagger}
           >
             {featuredProducts.map((product) => (
-               <motion.div key={product.id} variants={fadeInUp}>
-                 <ProductCard product={product} />
-               </motion.div>
+                <ProductCard key={product.id} product={product} />
             ))}
           </motion.div>
         </div>
       </section>
 
-      {/* Trust Signals */}
-      <div className="main-content section-padding">
-        <motion.div 
-          className="glass"
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          style={{ 
-            borderRadius: '2rem', 
-            padding: '4rem 2rem',
-            display: 'grid', 
-            gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', 
-            gap: '3rem',
-            textAlign: 'center',
-            background: 'linear-gradient(145deg, rgba(30, 41, 59, 0.4) 0%, rgba(30, 41, 59, 0.1) 100%)'
-          }}
-        >
-          {[
-            { title: 'Premium Quality', desc: 'Verified authenticity', icon: <ShieldCheck size={40} /> },
-            { title: 'Express Delivery', desc: 'Within 24 hours', icon: <Truck size={40} /> },
-            { title: '24/7 Support', desc: 'Instant response', icon: <Clock size={40} /> },
-            { title: 'Secure Payment', desc: 'Encrypted transactions', icon: <Zap size={40} /> }
-          ].map((feature, i) => (
-            <motion.div key={i} whileHover={{ y: -5 }}>
-              <div style={{ marginBottom: '1.5rem', color: 'var(--primary)' }}>{feature.icon}</div>
-              <h3 style={{ fontSize: '1.2rem', marginBottom: '0.5rem' }}>{feature.title}</h3>
-              <p style={{ fontSize: '0.9rem' }}>{feature.desc}</p>
-            </motion.div>
-          ))}
-        </motion.div>
-      </div>
+      {/* Newsletter / CTA */}
+      <section className="section-padding" style={{ marginBottom: '3rem' }}>
+        <div className="main-content">
+          <motion.div 
+            initial={{ opacity: 0, scale: 0.98 }}
+            whileInView={{ opacity: 1, scale: 1 }}
+            viewport={{ once: true }}
+            className="glass"
+            style={{ 
+              borderRadius: '2rem', 
+              padding: '4rem 2rem',
+              textAlign: 'center',
+              background: 'linear-gradient(135deg, rgba(129, 140, 248, 0.1) 0%, rgba(192, 132, 252, 0.1) 100%)',
+              border: '1px solid var(--border-soft)'
+            }}
+          >
+            <h2 style={{ marginBottom: '1rem' }}>Join the Inner Circle</h2>
+            <p style={{ maxWidth: '550px', margin: '0 auto 2.5rem auto', fontSize: '1.1rem' }}>
+              Subscribe for early-access collections and premium member benefits.
+            </p>
+            <div style={{ display: 'flex', justifyContent: 'center', gap: '0.75rem', flexWrap: 'wrap', maxWidth: '550px', margin: '0 auto' }}>
+              <input 
+                type="email" 
+                placeholder="Professional email address" 
+                style={{ 
+                  flex: 1, 
+                  background: 'rgba(255,255,255,0.03)', 
+                  border: '1px solid var(--border-soft)', 
+                  padding: '1rem 1.5rem', 
+                  borderRadius: '1rem',
+                  color: 'white',
+                  fontSize: '1rem',
+                  outline: 'none'
+                }} 
+              />
+              <button className="btn-primary" style={{ padding: '1rem 2.5rem' }}>Join Now</button>
+            </div>
+          </motion.div>
+        </div>
+      </section>
     </div>
   );
 };

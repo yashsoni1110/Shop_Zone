@@ -1,36 +1,59 @@
+import { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { ShoppingCart, ShoppingBag, Home, Phone, Info } from 'lucide-react';
-import { useCart } from '../context/CartContext';
+import { useSelector } from 'react-redux';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const Navbar = () => {
-  const { getCartCount } = useCart();
-  const count = getCartCount();
+  const [scrolled, setScrolled] = useState(false);
+  const cartItems = useSelector((state) => state.cart.items);
+  const count = cartItems.reduce((acc, item) => acc + (item.quantity || 1), 0);
   const location = useLocation();
+
+  useEffect(() => {
+    const handleScroll = () => setScrolled(window.scrollY > 20);
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   const isActive = (path) => location.pathname === path;
 
   return (
-    <nav className="navbar">
-      <div className="navbar-container">
+    <nav 
+      className={`navbar ${scrolled ? 'glass-heavy' : ''}`}
+      style={{
+        position: 'sticky',
+        top: 0,
+        zIndex: 1000,
+        height: scrolled ? '65px' : '80px',
+        display: 'flex',
+        alignItems: 'center',
+        transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
+        background: scrolled ? 'var(--bg-glass-heavy)' : 'transparent',
+        borderBottom: scrolled ? '1px solid var(--border-soft)' : '1px solid transparent'
+      }}
+    >
+      <div className="navbar-container" style={{ width: '100%', maxWidth: '1400px', margin: '0 auto', padding: '0 2rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         {/* Logo */}
-        <Link to="/" className="navbar-logo" style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', textDecoration: 'none' }}>
+        <Link to="/" className="navbar-logo" style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', textDecoration: 'none' }}>
           <motion.div 
-            whileHover={{ rotate: 10 }}
+            whileHover={{ rotate: 5, scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
             style={{ 
-              background: 'var(--gradient-main)', 
-              borderRadius: '12px', 
-              padding: '8px',
-              boxShadow: '0 0 20px rgba(99, 102, 241, 0.3)'
+              background: 'var(--gradient-base)', 
+              borderRadius: '10px', 
+              padding: '6px',
+              display: 'flex',
+              boxShadow: '0 4px 12px rgba(129, 140, 248, 0.4)'
             }}
           >
-            <ShoppingBag size={24} color="white" strokeWidth={2.5} />
+            <ShoppingBag size={20} color="white" />
           </motion.div>
           <span style={{ 
-            fontSize: '1.5rem', 
+            fontSize: '1.4rem', 
             fontWeight: '800', 
             letterSpacing: '-0.03em',
-            background: 'var(--gradient-main)', 
+            background: 'var(--gradient-base)', 
             WebkitBackgroundClip: 'text', 
             WebkitTextFillColor: 'transparent' 
           }}>
@@ -38,30 +61,33 @@ const Navbar = () => {
           </span>
         </Link>
         
-        {/* Links */}
-        <div className="navbar-links">
-          <NavLink to="/" icon={<Home size={18} />} text="Home" active={isActive('/')} />
-          <NavLink to="/shop" icon={<ShoppingBag size={18} />} text="Shop" active={isActive('/shop')} />
-          <NavLink to="/about-us" icon={<Info size={18} />} text="About" active={isActive('/about-us')} />
-          <NavLink to="/contact" icon={<Phone size={18} />} text="Contact" active={isActive('/contact')} />
+        {/* Navigation Links */}
+        <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
+          <div style={{ display: 'flex', gap: '0.25rem' }}>
+            <NavLink to="/" icon={<Home size={16} />} text="Home" active={isActive('/')} />
+            <NavLink to="/shop" icon={<ShoppingBag size={16} />} text="Shop" active={isActive('/shop')} />
+            <NavLink to="/about-us" icon={<Info size={16} />} text="About" active={isActive('/about-us')} />
+            <NavLink to="/contact" icon={<Phone size={16} />} text="Contact" active={isActive('/contact')} />
+          </div>
           
-          <div style={{ width: '1px', height: '24px', background: 'var(--border-light)', margin: '0 0.5rem' }} />
+          <div style={{ width: '1px', height: '20px', background: 'var(--border-soft)', margin: '0 0.5rem' }} />
 
-          {/* Cart */}
+          {/* Cart Interaction */}
           <Link to="/cart" style={{ position: 'relative', textDecoration: 'none' }}>
             <motion.div 
-              whileHover={{ scale: 1.05 }}
+              whileHover={{ scale: 1.05, background: 'rgba(255,255,255,0.08)' }}
               whileTap={{ scale: 0.95 }}
               style={{ 
-                background: isActive('/cart') ? 'var(--gradient-main)' : 'rgba(255, 255, 255, 0.03)',
+                background: isActive('/cart') ? 'var(--primary)' : 'rgba(255, 255, 255, 0.03)',
                 padding: '0.6rem',
                 borderRadius: '50%',
                 display: 'flex',
-                boxShadow: isActive('/cart') ? '0 0 20px var(--primary-glow)' : 'inset 0 0 0 1px var(--border-light)',
-                transition: 'all 0.3s ease'
+                boxShadow: isActive('/cart') ? '0 4px 15px var(--primary-glow)' : 'none',
+                transition: 'all 0.3s ease',
+                border: '1px solid var(--border-soft)'
               }}
             >
-              <ShoppingCart size={20} color={isActive('/cart') ? 'white' : 'var(--text-muted)'} />
+              <ShoppingCart size={18} color={isActive('/cart') ? 'white' : 'var(--text-secondary)'} />
               
               <AnimatePresence>
                 {count > 0 && (
@@ -71,20 +97,21 @@ const Navbar = () => {
                     exit={{ scale: 0 }}
                     style={{
                       position: 'absolute',
-                      top: '-4px',
-                      right: '-4px',
-                      background: '#ef4444',
+                      top: '-2px',
+                      right: '-2px',
+                      background: 'var(--accent-rose)',
                       color: 'white',
                       borderRadius: '50%',
-                      minWidth: '20px',
-                      height: '20px',
+                      minWidth: '18px',
+                      height: '18px',
                       display: 'flex',
                       justifyContent: 'center',
                       alignItems: 'center',
-                      fontSize: '0.75rem',
-                      fontWeight: 'bold',
-                      boxShadow: '0 2px 4px rgba(0,0,0,0.2)',
-                      padding: '0 4px'
+                      fontSize: '0.65rem',
+                      fontWeight: '800',
+                      boxShadow: '0 2px 8px rgba(0,0,0,0.3)',
+                      padding: '0 2px',
+                      border: '2px solid var(--bg-deep)'
                     }}
                   >
                     {count}
@@ -106,19 +133,34 @@ const NavLink = ({ to, icon, text, active }) => (
         display: 'flex',
         alignItems: 'center',
         gap: '0.5rem',
-        padding: '0.6rem 1.25rem',
+        padding: '0.5rem 1rem',
         borderRadius: '9999px',
-        color: active ? 'white' : 'var(--text-muted)',
+        color: active ? 'white' : 'var(--text-secondary)',
         background: active ? 'rgba(255, 255, 255, 0.05)' : 'transparent',
-        border: active ? '1px solid rgba(255,255,255,0.1)' : '1px solid transparent'
+        transition: 'all 0.3s ease'
       }}
       whileHover={{ 
-        color: 'var(--text-main)',
-        background: 'rgba(255, 255, 255, 0.03)'
+        color: 'white',
+        background: 'rgba(255, 255, 255, 0.08)',
       }}
     >
-      {icon}
-      <span style={{ fontWeight: 500, fontSize: '0.95rem' }}>{text}</span>
+      <span style={{ opacity: active ? 1 : 0.7, display: 'flex' }}>{icon}</span>
+      <span style={{ fontWeight: active ? 700 : 500, fontSize: '0.9rem' }}>{text}</span>
+      {active && (
+        <motion.div 
+          layoutId="nav-active"
+          style={{
+            position: 'absolute',
+            bottom: '0',
+            left: '25%',
+            right: '25%',
+            height: '2px',
+            background: 'var(--primary)',
+            borderRadius: '2px',
+            boxShadow: '0 0 10px var(--primary)'
+          }}
+        />
+      )}
     </motion.div>
   </Link>
 );

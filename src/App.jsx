@@ -1,6 +1,6 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
-import { CartProvider } from './context/CartContext';
+
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import Home from './pages/Home';
@@ -12,7 +12,6 @@ import About from './pages/About';
 
 function App() {
   return (
-    <CartProvider>
       <Router>
         <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
           <Navbar />
@@ -28,8 +27,7 @@ function App() {
           <Footer />
         </div>
       </Router>
-    </CartProvider>
-  );
+    );
 }
 
 export default App;

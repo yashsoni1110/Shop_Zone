@@ -1,134 +1,138 @@
-import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ShoppingCart, Star } from 'lucide-react';
-import { useCart } from '../context/CartContext';
+import { ShoppingCart, Star, Heart } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { useDispatch } from 'react-redux';
+import { addToCart } from '../redux/cartSlice';
 import toast from 'react-hot-toast';
 
 const ProductCard = ({ product }) => {
-  const { addToCart } = useCart();
+  const dispatch = useDispatch();
 
   const handleAddToCart = (e) => {
     e.preventDefault();
-    addToCart(product);
-    toast.success('Added to cart', {
-      position: 'bottom-right',
+    dispatch(addToCart(product));
+    toast.success(`${product.title} added to cart!`, {
       style: {
-        background: '#1e293b',
-        color: '#fff',
-        border: '1px solid rgba(255,255,255,0.1)'
-      }
+        background: 'var(--bg-glass-heavy)',
+        color: 'white',
+        backdropFilter: 'blur(10px)',
+        border: '1px solid var(--border-soft)',
+        borderRadius: '16px'
+      },
+      icon: <ShoppingCart size={20} color="var(--primary-light)" />,
     });
   };
 
   return (
-    <Link to={`/product/${product.id}`} style={{ textDecoration: 'none', color: 'inherit' }}>
-      <motion.div
-        whileHover={{ y: -8 }}
-        className="glass"
-        style={{
-          borderRadius: '1.5rem',
-          overflow: 'hidden',
-          height: '100%',
-          display: 'flex',
-          flexDirection: 'column',
-          position: 'relative',
-          group: 'group' // enabling group hover
-        }}
-      >
-        <div style={{ position: 'relative', paddingTop: '100%', overflow: 'hidden' }}>
-          <motion.img
-            whileHover={{ scale: 1.05 }}
-            transition={{ duration: 0.4 }}
-            src={product.thumbnail}
-            alt={product.title}
-            style={{
-              position: 'absolute',
-              top: 0,
-              left: 0,
-              width: '100%',
-              height: '100%',
+    <motion.div
+      initial={{ opacity: 0, y: 30 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true }}
+      className="glass clickable"
+      style={{
+        borderRadius: '2rem',
+        overflow: 'hidden',
+        display: 'flex',
+        flexDirection: 'column',
+        height: '100%',
+        position: 'relative'
+      }}
+    >
+      <Link to={`/product/${product.id}`} style={{ textDecoration: 'none', color: 'inherit', height: '100%', display: 'flex', flexDirection: 'column' }}>
+        <div style={{ position: 'relative', paddingTop: '100%', overflow: 'hidden', background: 'rgba(255,255,255,0.01)' }}>
+          <motion.img 
+            whileHover={{ scale: 1.1, rotate: -2 }}
+            src={product.thumbnail} 
+            alt={product.title} 
+            style={{ 
+              position: 'absolute', 
+              top: '10%', 
+              left: '10%', 
+              width: '80%', 
+              height: '80%', 
               objectFit: 'contain',
-              padding: '1rem'
-            }}
+            }} 
           />
-          {/* Overlay Button */}
-          <motion.button
-            initial={{ opacity: 0, y: 10 }}
+          
+          {/* Rating Label */}
+          <div style={{ 
+            position: 'absolute', 
+            top: '1.25rem', 
+            right: '1.25rem', 
+            background: 'rgba(15, 23, 42, 0.8)', 
+            backdropFilter: 'blur(8px)',
+            color: 'white', 
+            padding: '6px 12px', 
+            borderRadius: '1rem', 
+            fontSize: '0.85rem',
+            fontWeight: 700,
+            display: 'flex',
+            alignItems: 'center',
+            gap: '6px',
+            border: '1px solid var(--accent-gold)'
+          }}>
+            <Star size={14} fill="var(--accent-gold)" color="var(--accent-gold)" />
+            {product.rating}
+          </div>
+
+          <motion.button 
             whileHover={{ scale: 1.1 }}
-            className="add-to-cart-btn"
-            onClick={handleAddToCart}
+            whileTap={{ scale: 0.9 }}
             style={{
               position: 'absolute',
-              bottom: '1rem',
-              right: '1rem',
-              background: 'var(--gradient-main)',
+              top: '1.25rem',
+              left: '1.25rem',
+              background: 'rgba(255, 255, 255, 0.05)',
+              border: '1px solid var(--border-soft)',
               color: 'white',
-              border: 'none',
-              borderRadius: '50%',
               width: '40px',
               height: '40px',
+              borderRadius: '50%',
               display: 'flex',
-              justifyContent: 'center',
               alignItems: 'center',
-              cursor: 'pointer',
-              boxShadow: '0 4px 15px rgba(0,0,0,0.2)',
-              zIndex: 10
+              justifyContent: 'center',
+              backdropFilter: 'blur(10px)'
             }}
           >
-            <ShoppingCart size={20} />
+            <Heart size={18} />
           </motion.button>
         </div>
 
-        <div style={{ padding: '1.5rem', flexGrow: 1, display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start' }}>
-            <h3 style={{ 
-              fontSize: '1.1rem', 
-              marginBottom: '0', 
-              lineHeight: '1.4',
-              display: '-webkit-box',
-              WebkitLineClamp: 2,
-              WebkitBoxOrient: 'vertical',
-              overflow: 'hidden',
-              flex: 1
-            }}>
-              {product.title}
-            </h3>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '0.9rem', color: '#fbbf24' }}>
-              <Star size={14} fill="currentColor" />
-              <span>{product.rating}</span>
-            </div>
+        <div style={{ padding: '2rem', flex: 1, display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+          <div style={{ textTransform: 'uppercase', fontSize: '0.75rem', fontWeight: 800, color: 'var(--primary-light)', letterSpacing: '2px' }}>
+            {product.category}
           </div>
+          <h3 style={{ fontSize: '1.25rem', lineHeight: '1.3', flex: 1 }}>{product.title}</h3>
           
-          <p style={{ 
-            fontSize: '0.9rem', 
-            color: 'var(--text-muted)', 
-            display: '-webkit-box',
-            WebkitLineClamp: 2,
-            WebkitBoxOrient: 'vertical',
-            overflow: 'hidden',
-            marginBottom: 'auto'
-          }}>
-            {product.description}
-          </p>
-          
-          <div style={{ marginTop: '1rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-            <span style={{ fontSize: '1.25rem', fontWeight: '700', color: 'var(--text-main)' }}>
-              ${product.price}
-            </span>
-            <span style={{ 
-              fontSize: '0.8rem', 
-              padding: '4px 12px', 
-              borderRadius: '9999px', 
-              background: 'rgba(99, 102, 241, 0.1)', 
-              color: 'var(--primary)',
-              fontWeight: '500'
-            }}>
-              {product.category}
-            </span>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 'auto' }}>
+            <div>
+              <span style={{ fontSize: '1.6rem', fontWeight: 800, color: 'white' }}>${product.price}</span>
+            </div>
+            
+            <motion.button 
+              whileHover={{ scale: 1.1, rotate: 5 }}
+              whileTap={{ scale: 0.9 }}
+              onClick={handleAddToCart}
+              style={{ 
+                background: 'var(--gradient-base)', 
+                border: 'none', 
+                width: '56px', 
+                height: '56px', 
+                borderRadius: '1.25rem', 
+                display: 'flex', 
+                alignItems: 'center', 
+                justifyContent: 'center', 
+                cursor: 'pointer',
+                color: 'white',
+                boxShadow: '0 8px 16px var(--primary-glow)'
+              }}
+            >
+              <ShoppingCart size={24} />
+            </motion.button>
           </div>
         </div>
-      </motion.div>
-    </Link>
+      </Link>
+    </motion.div>
   );
 };
 

@@ -1,18 +1,49 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { useSelector, useDispatch } from 'react-redux';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Search, Filter, ShoppingCart, Star } from 'lucide-react';
-import { useCart } from '../context/CartContext';
+import { Search, Filter, ShoppingCart, Star, X, LayoutGrid, Sparkles, Sofa, Apple, Gem, Smartphone, Watch, Camera, Footprints, Shirt, Glasses, Package } from 'lucide-react';
+import { addToCart } from '../redux/cartSlice';
+import { setCategory, setPriceRange, setSearchTerm } from '../redux/filterSlice';
 import toast from 'react-hot-toast';
 
 const Shop = () => {
+  const dispatch = useDispatch();
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [searchTerm, setSearchTerm] = useState('');
-  const { addToCart } = useCart();
+  const { category, priceRange, searchTerm } = useSelector((state) => state.filters);
+
+  const categoryMap = [
+    { id: "all", label: "All Products", icon: <LayoutGrid size={18} /> },
+    { id: "beauty", label: "Beauty", icon: <Sparkles size={18} /> },
+    { id: "fragrances", label: "Fragrances", icon: <Sparkles size={18} /> },
+    { id: "furniture", label: "Furniture", icon: <Sofa size={18} /> },
+    { id: "groceries", label: "Groceries", icon: <Apple size={18} /> },
+    { id: "home-decoration", label: "Home Decor", icon: <Gem size={18} /> },
+    { id: "kitchen-accessories", label: "Kitchen", icon: <Gem size={18} /> },
+    { id: "laptops", label: "Laptops", icon: <Smartphone size={18} /> },
+    { id: "mens-shirts", label: "Men's Fashion", icon: <Shirt size={18} /> },
+    { id: "mens-shoes", label: "Men's Shoes", icon: <Footprints size={18} /> },
+    { id: "mens-watches", label: "Watches", icon: <Watch size={18} /> },
+    { id: "mobile-accessories", label: "Accessories", icon: <Smartphone size={18} /> },
+    { id: "motorcycle", label: "Motorcycle", icon: <Package size={18} /> },
+    { id: "skin-care", label: "Skin Care", icon: <Sparkles size={18} /> },
+    { id: "smartphones", label: "Smartphones", icon: <Smartphone size={18} /> },
+    { id: "sports-accessories", label: "Sports", icon: <Package size={18} /> },
+    { id: "sunglasses", label: "Sunglasses", icon: <Glasses size={18} /> },
+    { id: "tablets", label: "Tablets", icon: <Smartphone size={18} /> },
+    { id: "tops", label: "Tops", icon: <Shirt size={18} /> },
+    { id: "vehicle", label: "Vehicle", icon: <Package size={18} /> },
+    { id: "womens-bags", label: "Bags", icon: <Gem size={18} /> },
+    { id: "womens-dresses", label: "Dresses", icon: <Shirt size={18} /> },
+    { id: "womens-jewellery", label: "Jewellery", icon: <Gem size={18} /> },
+    { id: "womens-shoes", label: "Women's Shoes", icon: <Footprints size={18} /> },
+    { id: "womens-watches", label: "Women's Watches", icon: <Watch size={18} /> }
+  ];
 
   useEffect(() => {
-    fetch('https://dummyjson.com/products')
+    setLoading(true);
+    fetch('https://dummyjson.com/products?limit=100')
       .then((res) => res.json())
       .then((data) => {
         setProducts(data.products);
@@ -20,167 +51,234 @@ const Shop = () => {
       });
   }, []);
 
-  const filteredProducts = products.filter(product => 
-    product.title.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredProducts = products.filter(product => {
+    const matchesSearch = product.title.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesCategory = category === 'all' || product.category === category;
+    const matchesPrice = product.price <= priceRange;
+    return matchesSearch && matchesCategory && matchesPrice;
+  });
 
   const handleAddToCart = (e, product) => {
     e.preventDefault();
-    addToCart(product);
+    dispatch(addToCart(product));
     toast.success(`${product.title} added to cart!`, {
       style: {
-        background: 'rgba(30, 41, 59, 0.9)',
-        color: '#fff',
+        background: 'var(--bg-glass-heavy)',
+        color: 'white',
         backdropFilter: 'blur(10px)',
-        border: '1px solid rgba(255,255,255,0.1)'
+        border: '1px solid var(--border-soft)',
+        borderRadius: '16px'
       },
-      iconTheme: {
-        primary: '#6366f1',
-        secondary: '#fff',
-      },
+      icon: <ShoppingCart size={20} color="var(--primary-light)" />,
     });
   };
 
-  if (loading) return <div className="loading-spinner"></div>;
+  if (loading) return (
+    <div className="loading-container">
+      <div className="loading-spinner"></div>
+    </div>
+  );
 
   return (
-    <div className="main-content">
-      <motion.div 
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        style={{ 
-          display: 'flex', 
-          justifyContent: 'space-between', 
-          alignItems: 'center', 
-          marginBottom: '3rem', 
-          flexWrap: 'wrap', 
-          gap: '1rem' 
-        }}
-      >
-        <div>
-          <h1>Explore Collection</h1>
-          <p style={{ color: 'var(--text-muted)' }}>Find your next favorite item.</p>
-        </div>
+    <div className="main-content" style={{ marginTop: '1rem' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: '260px 1fr', gap: '2rem' }}>
+        
+        {/* Sidebar Filters - More Compact */}
+        <aside style={{ position: 'sticky', top: '90px', height: 'calc(100vh - 110px)', display: 'flex', flexDirection: 'column' }}>
+          <motion.div 
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            className="glass"
+            style={{ padding: '1.5rem', borderRadius: '1.5rem', flex: 1, display: 'flex', flexDirection: 'column', gap: '1.5rem' }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', borderBottom: '1px solid var(--border-soft)', paddingBottom: '1rem' }}>
+              <Filter size={18} color="var(--primary)" />
+              <h3 style={{ margin: 0, fontSize: '1.1rem' }}>Filter Products</h3>
+            </div>
 
-        <div className="glass" style={{ 
-          display: 'flex', 
-          alignItems: 'center', 
-          padding: '0.75rem 1.5rem', 
-          borderRadius: '9999px',
-          width: '100%',
-          maxWidth: '400px'
-        }}>
-          <Search size={20} color="var(--text-muted)" />
-          <input 
-            type="text" 
-            placeholder="Search products..." 
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            style={{ 
-              background: 'transparent', 
-              border: 'none', 
-              color: 'white', 
-              marginLeft: '1rem', 
-              flex: 1, 
-              outline: 'none',
-              fontSize: '1rem' 
-            }}
-          />
-        </div>
-      </motion.div>
+            {/* Category Filter */}
+            <div style={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0 }}>
+              <h4 style={{ fontSize: '0.75rem', marginBottom: '0.75rem', color: 'var(--text-tertiary)', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Categories</h4>
+              <div 
+                style={{ flex: 1, overflowY: 'auto', paddingRight: '0.25rem', display: 'flex', flexDirection: 'column', gap: '0.15rem' }} 
+                className="custom-scrollbar"
+              >
+                {categoryMap.map((cat) => (
+                  <button
+                    key={cat.id}
+                    onClick={() => dispatch(setCategory(cat.id))}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '0.7rem',
+                      textAlign: 'left',
+                      padding: '0.6rem 0.75rem',
+                      borderRadius: '0.75rem',
+                      background: category === cat.id ? 'var(--primary-glow)' : 'transparent',
+                      border: 'none',
+                      color: category === cat.id ? 'white' : 'var(--text-secondary)',
+                      cursor: 'pointer',
+                      fontSize: '0.9rem',
+                      fontWeight: category === cat.id ? 700 : 500,
+                      transition: 'all 0.2s'
+                    }}
+                  >
+                    <span style={{ opacity: category === cat.id ? 1 : 0.5, display: 'flex' }}>{cat.icon}</span>
+                    {cat.label}
+                  </button>
+                ))}
+              </div>
+            </div>
 
-      <motion.div 
-        layout 
-        className="product-grid"
-      >
-        <AnimatePresence>
-          {filteredProducts.map((product) => (
-            <motion.div
-              layout
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.9 }}
-              whileHover={{ y: -10 }}
-              key={product.id}
-              className="glass"
-              style={{
-                borderRadius: '1rem',
-                overflow: 'hidden',
-                position: 'relative',
-                display: 'flex',
-                flexDirection: 'column'
-              }}
-            >
-              <Link to={`/product/${product.id}`} style={{ textDecoration: 'none', color: 'inherit', flex: 1, display: 'flex', flexDirection: 'column' }}>
-                <div style={{ position: 'relative', paddingTop: '100%', overflow: 'hidden' }}>
-                  <img 
-                    src={product.thumbnail} 
-                    alt={product.title} 
-                    style={{ 
-                      position: 'absolute', 
-                      top: 0, 
-                      left: 0, 
-                      width: '100%', 
-                      height: '100%', 
-                      objectFit: 'contain',
-                      transition: 'transform 0.5s ease'
-                    }} 
-                    className="product-img"
-                  />
-                  <div style={{ 
-                    position: 'absolute', 
-                    top: '10px', 
-                    right: '10px', 
-                    // background: 'rgba(255, 255, 255, 0.9)', 
+            {/* Price Filter */}
+            <div style={{ padding: '1.25rem 0', borderTop: '1px solid var(--border-soft)' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+                <span style={{ fontSize: '0.8rem', color: 'var(--text-tertiary)' }}>Max Price</span>
+                <span style={{ fontWeight: 800, color: 'var(--primary)', fontSize: '1rem' }}>${priceRange}</span>
+              </div>
+              <input 
+                type="range" 
+                min="0" 
+                max="2000" 
+                step="10"
+                value={priceRange}
+                onChange={(e) => dispatch(setPriceRange(parseInt(e.target.value)))}
+                style={{ width: '100%', cursor: 'pointer', accentColor: 'var(--primary)' }}
+              />
+            </div>
+
+            {/* Clear All */}
+            {(category !== 'all' || priceRange < 2000 || searchTerm !== '') && (
+              <button
+                onClick={() => {
+                  dispatch(setCategory('all'));
+                  dispatch(setPriceRange(2000));
+                  dispatch(setSearchTerm(''));
+                }}
+                className="btn-secondary"
+                style={{ width: '100%', padding: '0.6rem', fontSize: '0.85rem' }}
+              >
+                Reset All
+              </button>
+            )}
+          </motion.div>
+        </aside>
+
+        {/* Product Grid Area */}
+        <main>
+          {/* Organized Header */}
+          <div style={{ marginBottom: '2rem' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', gap: '2rem', flexWrap: 'wrap' }}>
+              <div>
+                <h1 style={{ marginBottom: '0.25rem', fontSize: '2.5rem' }}>
+                  Explore <span className="text-gradient">Collections</span>
+                </h1>
+                <p style={{ fontSize: '1rem' }}>
+                  Showing {filteredProducts.length} premium pieces
+                </p>
+              </div>
+
+              <div className="glass" style={{ 
+                display: 'flex', 
+                alignItems: 'center', 
+                padding: '0.6rem 1.25rem', 
+                borderRadius: '1.25rem',
+                width: '100%',
+                maxWidth: '380px',
+                background: 'rgba(255,255,255,0.02)'
+              }}>
+                <Search size={18} color="var(--text-tertiary)" />
+                <input 
+                  type="text" 
+                  placeholder="Search catalog..." 
+                  value={searchTerm}
+                  onChange={(e) => dispatch(setSearchTerm(e.target.value))}
+                  style={{ 
+                    background: 'transparent', 
+                    border: 'none', 
                     color: 'white', 
-                    padding: '4px 8px', 
-                    borderRadius: '4px', 
-                    fontWeight: 'bold', 
-                    fontSize: '0.8rem',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '4px'
-                  }}>
-                    <Star size={12} fill="#f59e0b" color="#f59e0b" />
-                    {product.rating}
-                  </div>
-                </div>
+                    marginLeft: '0.75rem', 
+                    flex: 1, 
+                    outline: 'none',
+                    fontSize: '1rem'
+                  }}
+                />
+              </div>
+            </div>
+          </div>
 
-                <div style={{ padding: '1.5rem', flex: 1, display: 'flex', flexDirection: 'column' }}>
-                  <div style={{ textTransform: 'uppercase', fontSize: '0.75rem', color: 'var(--primary)', fontWeight: '600', letterSpacing: '1px', marginBottom: '0.5rem' }}>
-                    {product.category}
-                  </div>
-                  <h3 style={{ fontSize: '1.125rem', marginBottom: '0.5rem', lineHeight: '1.4', flex: 1 }}>{product.title}</h3>
-                  
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '1rem' }}>
-                    <span style={{ fontSize: '1.5rem', fontWeight: 'bold' }}>${product.price}</span>
-                    <motion.button 
-                      whileHover={{ scale: 1.1 }}
-                      whileTap={{ scale: 0.9 }}
-                      onClick={(e) => handleAddToCart(e, product)}
-                      style={{ 
-                        background: 'var(--gradient-main)', 
-                        border: 'none', 
-                        width: '40px', 
-                        height: '40px', 
-                        borderRadius: '50%', 
-                        display: 'flex', 
-                        alignItems: 'center', 
-                        justifyContent: 'center', 
-                        cursor: 'pointer',
-                        color: 'white',
-                        boxShadow: '0 4px 10px rgba(99, 102, 241, 0.4)'
-                      }}
-                    >
-                      <ShoppingCart size={20} />
-                    </motion.button>
-                  </div>
-                </div>
-              </Link>
-            </motion.div>
-          ))}
-        </AnimatePresence>
-      </motion.div>
+          {/* Grid */}
+          <AnimatePresence mode='popLayout'>
+            <div className="product-grid">
+              {filteredProducts.map((product, index) => (
+                <motion.div
+                  key={product.id}
+                  layout
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, scale: 0.95 }}
+                  transition={{ delay: index * 0.03, duration: 0.4 }}
+                  className="glass clickable"
+                  style={{ borderRadius: '1.5rem', overflow: 'hidden', height: '100%' }}
+                >
+                  <Link to={`/product/${product.id}`} style={{ textDecoration: 'none', color: 'inherit' }}>
+                    <div style={{ position: 'relative', paddingTop: '100%', background: 'rgba(255,255,255,0.01)' }}>
+                      <motion.img 
+                        whileHover={{ scale: 1.08 }}
+                        src={product.thumbnail} 
+                        alt={product.title} 
+                        style={{ position: 'absolute', top: '10%', left: '10%', width: '80%', height: '80%', objectFit: 'contain' }} 
+                      />
+                      <div style={{ 
+                        position: 'absolute', top: '1rem', right: '1rem', 
+                        background: 'rgba(15, 23, 42, 0.8)', padding: '4px 10px', 
+                        borderRadius: '0.75rem', fontSize: '0.8rem', fontWeight: 700,
+                        display: 'flex', alignItems: 'center', gap: '4px', border: '1px solid var(--accent-gold)'
+                      }}>
+                        <Star size={14} fill="var(--accent-gold)" color="var(--accent-gold)" />
+                        {product.rating}
+                      </div>
+                    </div>
+
+                    <div style={{ padding: '1.5rem', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                      <span style={{ fontSize: '0.7rem', fontWeight: 800, color: 'var(--primary)', textTransform: 'uppercase', letterSpacing: '1px' }}>
+                        {product.category}
+                      </span>
+                      <h3 style={{ fontSize: '1.1rem', lineHeight: '1.4', margin: 0, minHeight: '3rem' }}>{product.title}</h3>
+                      
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '0.5rem' }}>
+                        <span style={{ fontSize: '1.4rem', fontWeight: 800 }}>${product.price}</span>
+                        <motion.button 
+                          whileHover={{ scale: 1.1 }}
+                          whileTap={{ scale: 0.9 }}
+                          onClick={(e) => handleAddToCart(e, product)}
+                          style={{ 
+                            background: 'var(--gradient-base)', border: 'none', 
+                            width: '44px', height: '44px', borderRadius: '1rem', 
+                            display: 'flex', alignItems: 'center', justifyContent: 'center', 
+                            cursor: 'pointer', color: 'white',
+                            boxShadow: '0 4px 12px var(--primary-glow)'
+                          }}
+                        >
+                          <ShoppingCart size={20} />
+                        </motion.button>
+                      </div>
+                    </div>
+                  </Link>
+                </motion.div>
+              ))}
+            </div>
+          </AnimatePresence>
+
+          {filteredProducts.length === 0 && (
+            <div style={{ textAlign: 'center', padding: '6rem 2rem' }}>
+               <Search size={48} color="var(--text-dim)" style={{ marginBottom: '1rem' }} />
+               <h2>No products match your criteria</h2>
+               <p>Try adjusting your search or filters.</p>
+            </div>
+          )}
+        </main>
+      </div>
     </div>
   );
 };
