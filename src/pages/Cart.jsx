@@ -156,8 +156,7 @@ const Cart = () => {
                 <span>Est. Tax (8%)</span>
                 <span style={{ fontWeight: 700, color: 'white' }}>${tax.toFixed(2)}</span>
               </div>
-              <div style={{ height: '1px', background: 'var(--border-soft)', margin: '0.5rem 0' }} />
-              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '1.4rem', fontWeight: 800 }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '1.4rem', fontWeight: 800, marginTop: '1rem' }}>
                 <span>Total</span>
                 <span className="text-gradient">${total.toFixed(2)}</span>
               </div>

@@ -151,13 +151,10 @@ const NavLink = ({ to, icon, text, active }) => (
           layoutId="nav-active"
           style={{
             position: 'absolute',
-            bottom: '0',
-            left: '25%',
-            right: '25%',
-            height: '2px',
-            background: 'var(--primary)',
-            borderRadius: '2px',
-            boxShadow: '0 0 10px var(--primary)'
+            inset: '0',
+            background: 'rgba(255, 255, 255, 0.05)',
+            borderRadius: '9999px',
+            zIndex: -1
           }}
         />
       )}

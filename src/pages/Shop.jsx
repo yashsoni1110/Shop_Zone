@@ -105,7 +105,7 @@ const Shop = () => {
               overflowX: 'hidden'
             }}
           >
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', borderBottom: '1px solid var(--border-soft)', paddingBottom: '1rem', flexShrink: 0 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', paddingBottom: '0.25rem', flexShrink: 0 }}>
               <Filter size={18} color="var(--primary)" />
               <h3 style={{ margin: 0, fontSize: '1.1rem', fontWeight: 700 }}>Filter Products</h3>
             </div>
