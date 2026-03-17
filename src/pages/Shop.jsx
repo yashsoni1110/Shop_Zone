@@ -83,26 +83,37 @@ const Shop = () => {
     <div className="main-content" style={{ marginTop: '1rem' }}>
       <div style={{ display: 'grid', gridTemplateColumns: '260px 1fr', gap: '2rem' }}>
         
-        {/* Sidebar Filters - More Compact */}
-        <aside style={{ position: 'sticky', top: '90px', height: 'calc(100vh - 110px)', display: 'flex', flexDirection: 'column' }}>
+        {/* Sidebar Filters - Sticky Overlay Fix */}
+        <aside style={{ 
+          position: 'sticky', 
+          top: '95px', 
+          height: 'calc(100vh - 120px)', 
+          zIndex: 40 
+        }}>
           <motion.div 
-            initial={{ opacity: 0, x: -20 }}
+            initial={{ opacity: 0, x: -25 }}
             animate={{ opacity: 1, x: 0 }}
-            className="glass"
-            style={{ padding: '1.5rem', borderRadius: '1.5rem', flex: 1, display: 'flex', flexDirection: 'column', gap: '1.5rem' }}
+            className="glass custom-scrollbar"
+            style={{ 
+              padding: '1.5rem', 
+              borderRadius: '1.5rem', 
+              height: '100%', 
+              display: 'flex', 
+              flexDirection: 'column', 
+              gap: '1.25rem',
+              overflowY: 'auto',
+              overflowX: 'hidden'
+            }}
           >
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', borderBottom: '1px solid var(--border-soft)', paddingBottom: '1rem' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', borderBottom: '1px solid var(--border-soft)', paddingBottom: '1rem', flexShrink: 0 }}>
               <Filter size={18} color="var(--primary)" />
-              <h3 style={{ margin: 0, fontSize: '1.1rem' }}>Filter Products</h3>
+              <h3 style={{ margin: 0, fontSize: '1.1rem', fontWeight: 700 }}>Filter Products</h3>
             </div>
 
-            {/* Category Filter */}
-            <div style={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0 }}>
-              <h4 style={{ fontSize: '0.75rem', marginBottom: '0.75rem', color: 'var(--text-tertiary)', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Categories</h4>
-              <div 
-                style={{ flex: 1, overflowY: 'auto', paddingRight: '0.25rem', display: 'flex', flexDirection: 'column', gap: '0.15rem' }} 
-                className="custom-scrollbar"
-              >
+            {/* Category Filter - Integrated Scrolling */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+              <h4 style={{ fontSize: '0.7rem', color: 'var(--text-tertiary)', textTransform: 'uppercase', letterSpacing: '0.12em', fontWeight: 800 }}>Categories</h4>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.2rem' }}>
                 {categoryMap.map((cat) => (
                   <button
                     key={cat.id}
@@ -110,30 +121,31 @@ const Shop = () => {
                     style={{
                       display: 'flex',
                       alignItems: 'center',
-                      gap: '0.7rem',
+                      gap: '0.75rem',
                       textAlign: 'left',
-                      padding: '0.6rem 0.75rem',
-                      borderRadius: '0.75rem',
+                      padding: '0.6rem 0.8rem',
+                      borderRadius: '0.8rem',
                       background: category === cat.id ? 'var(--primary-glow)' : 'transparent',
                       border: 'none',
                       color: category === cat.id ? 'white' : 'var(--text-secondary)',
                       cursor: 'pointer',
                       fontSize: '0.9rem',
                       fontWeight: category === cat.id ? 700 : 500,
-                      transition: 'all 0.2s'
+                      transition: 'all 0.2s',
+                      width: '100%'
                     }}
                   >
-                    <span style={{ opacity: category === cat.id ? 1 : 0.5, display: 'flex' }}>{cat.icon}</span>
-                    {cat.label}
+                    <span style={{ opacity: category === cat.id ? 1 : 0.5, display: 'flex', flexShrink: 0 }}>{cat.icon}</span>
+                    <span style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{cat.label}</span>
                   </button>
                 ))}
               </div>
             </div>
 
-            {/* Price Filter */}
-            <div style={{ padding: '1.25rem 0', borderTop: '1px solid var(--border-soft)' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-                <span style={{ fontSize: '0.8rem', color: 'var(--text-tertiary)' }}>Max Price</span>
+            {/* Price Filter - Solid at bottom if space permits, else scrolls */}
+            <div style={{ marginTop: 'auto', paddingTop: '1.25rem', borderTop: '1px solid var(--border-soft)', flexShrink: 0 }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.75rem' }}>
+                <span style={{ fontSize: '0.75rem', color: 'var(--text-tertiary)', textTransform: 'uppercase', fontWeight: 800 }}>Max Price</span>
                 <span style={{ fontWeight: 800, color: 'var(--primary)', fontSize: '1rem' }}>${priceRange}</span>
               </div>
               <input 
@@ -147,7 +159,7 @@ const Shop = () => {
               />
             </div>
 
-            {/* Clear All */}
+            {/* Clear All - Floating bottom */}
             {(category !== 'all' || priceRange < 2000 || searchTerm !== '') && (
               <button
                 onClick={() => {
@@ -156,7 +168,7 @@ const Shop = () => {
                   dispatch(setSearchTerm(''));
                 }}
                 className="btn-secondary"
-                style={{ width: '100%', padding: '0.6rem', fontSize: '0.85rem' }}
+                style={{ width: '100%', padding: '0.6rem', fontSize: '0.85rem', flexShrink: 0 }}
               >
                 Reset All
               </button>
