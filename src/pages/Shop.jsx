@@ -93,7 +93,7 @@ const Shop = () => {
           <motion.div 
             initial={{ opacity: 0, x: -25 }}
             animate={{ opacity: 1, x: 0 }}
-            className="glass custom-scrollbar"
+            className="glass hide-scrollbar"
             style={{ 
               padding: '1.5rem', 
               borderRadius: '1.5rem', 

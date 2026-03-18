@@ -93,7 +93,7 @@ body {
 
 /* Layout Organization */
 .main-content {
-  max-width: 1300px; /* More focused layout */
+  /* max-width: 1300px; More focused layout */
   margin: 0 auto;
   padding: 1.5rem 2rem;
   width: 100%;
@@ -209,6 +209,16 @@ p {
 .custom-scrollbar {
   scrollbar-width: thin;
   scrollbar-color: var(--primary) transparent;
+}
+
+/* Hide scrollbar utility */
+.hide-scrollbar {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
+}
+
+.hide-scrollbar::-webkit-scrollbar {
+  display: none; /* Chrome, Safari and Opera */
 }
 
 .loading-container {
