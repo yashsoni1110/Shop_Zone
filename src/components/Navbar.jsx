@@ -16,6 +16,7 @@ export default function Navbar() {
 
   const [searchOpen, setSearchOpen] = useState(false);
   const [query, setQuery]           = useState('');
+  const [fontsLoaded, setFontsLoaded] = useState(false);
   const inputRef = useRef(null);
 
   // Auto-focus when search opens
@@ -24,6 +25,15 @@ export default function Navbar() {
       inputRef.current.focus();
     }
   }, [searchOpen]);
+
+  // Wait for Google Fonts to finish downloading to perfectly sync Logo rendering
+  useEffect(() => {
+    if (document.fonts && document.fonts.ready) {
+      document.fonts.ready.then(() => setFontsLoaded(true));
+    } else {
+      setFontsLoaded(true);
+    }
+  }, []);
 
   const handleSearch = (e) => {
     e.preventDefault();
@@ -67,7 +77,16 @@ export default function Navbar() {
         }}>
 
           {/* ── LEFT: Logo ── */}
-          <Link to="/" style={{ textDecoration: 'none', flexShrink: 0, display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+          <Link to="/" style={{ 
+            textDecoration: 'none', 
+            flexShrink: 0, 
+            display: 'flex', 
+            alignItems: 'center', 
+            gap: '0.75rem',
+            opacity: fontsLoaded ? 1 : 0,
+            transform: fontsLoaded ? 'translateY(0)' : 'translateY(4px)',
+            transition: 'opacity 0.3s ease, transform 0.3s ease'
+          }}>
 
             {/* SVG Monogram mark */}
             <svg width="36" height="36" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -88,8 +107,8 @@ export default function Navbar() {
             {/* Wordmark block */}
             <div style={{ display: 'flex', flexDirection: 'column', lineHeight: 1 }}>
               <span style={{
-                fontFamily: '"Cormorant Garamond", Georgia, serif',
-                fontWeight: 800,
+                fontFamily: '"Cormorant Garamond", serif',
+                fontWeight: 700,
                 fontSize: '1.25rem',
                 letterSpacing: '0.18em',
                 textTransform: 'uppercase',
