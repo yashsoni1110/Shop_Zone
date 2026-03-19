@@ -2,12 +2,22 @@
 
 A modern, full-featured e-commerce web application built with **React + Vite**, featuring a premium editorial aesthetic, smooth animations, and advanced global state management.
 
-🔗 **Live Demo (New Version):** [https://shop-39qis5191-yashsoni1110s-projects.vercel.app](https://shop-39qis5191-yashsoni1110s-projects.vercel.app)
-*(Want to see the older version before the redesign? [Click here](https://shop-bkr62eino-yashsoni1110s-projects.vercel.app))*
+🔗 **Live Demo (New Version):** [https://shop-zone-ys.vercel.app/](https://shop-zone-ys.vercel.app/)
+*(Want to see the older version before the redesign? [Click here](https://shop-orcin-three.vercel.app/))*
 
 ---
 
-## 📸 Overview
+## 📸 Screenshots
+
+<p align="center">
+  <img src="screenshot.png" alt="Shop Zone Home Theme" width="45%" style="margin-right: 2%; border-radius: 8px;" />
+  <img src="screenshot1.png" alt="Shop Zone Advanced Filters" width="45%" style="border-radius: 8px;" />
+</p>
+<p align="center"><em>Left: The dynamic editorial Home page. Right: Advanced Redux-powered filtering sidebar.</em></p>
+
+---
+
+## 📖 Overview
 
 This branch (`main`) contains the newly upgraded application showcasing advanced **Redux Toolkit** state management and a highly stylized, minimalistic "editorial" black-and-white UI reminiscent of luxury fashion brands.
 
