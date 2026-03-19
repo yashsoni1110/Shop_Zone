@@ -108,7 +108,7 @@ export default function Navbar() {
             <div style={{ display: 'flex', flexDirection: 'column', lineHeight: 1 }}>
               <span style={{
                 fontFamily: '"Cormorant Garamond", serif',
-                fontWeight: 700,
+                fontWeight: 1000,
                 fontSize: '1.25rem',
                 letterSpacing: '0.18em',
                 textTransform: 'uppercase',
