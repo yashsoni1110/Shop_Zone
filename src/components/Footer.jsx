@@ -1,143 +1,128 @@
 import { Link } from 'react-router-dom';
-import { ShoppingBag, Facebook, Twitter, Instagram, Linkedin, Send, Mail, MapPin, Phone } from 'lucide-react';
+import { ShoppingBag, Instagram, Twitter, Github, Mail, Phone, MapPin } from 'lucide-react';
 
-const Footer = () => {
+const sections = [
+  {
+    title: 'Shop',
+    links: [
+      { label: 'All Products',  to: '/shop' },
+      { label: 'New Arrivals',  to: '/shop' },
+      { label: 'Best Sellers',  to: '/shop' },
+      { label: 'Sale',          to: '/shop' },
+    ]
+  },
+  {
+    title: 'Company',
+    links: [
+      { label: 'Our Story',    to: '/about-us' },
+      { label: 'Contact',      to: '/contact' },
+      { label: 'Careers',      to: '/about-us' },
+      { label: 'Press',        to: '/about-us' },
+    ]
+  },
+  {
+    title: 'Help',
+    links: [
+      { label: 'Shipping',         to: '/contact' },
+      { label: 'Returns',          to: '/contact' },
+      { label: 'Privacy Policy',   to: '/contact' },
+      { label: 'Terms of Service', to: '/contact' },
+    ]
+  },
+];
+
+export default function Footer() {
   return (
-    <footer style={{ 
-      background: '#020617', 
-      borderTop: '1px solid rgba(255, 255, 255, 0.05)', 
-      padding: '5rem 0 2rem', 
-      marginTop: 'auto',
-      position: 'relative',
-      overflow: 'hidden'
-    }}>
-      {/* Background Decor */}
-      <div style={{
-        position: 'absolute',
-        top: '0',
-        left: '50%',
-        transform: 'translateX(-50%)',
-        width: '100%',
-        height: '1px',
-        background: 'radial-gradient(circle, rgba(99, 102, 241, 0.5) 0%, transparent 70%)'
-      }} />
+    <footer style={{ background: 'var(--bg-dark)', color: 'rgba(255,255,255,0.55)', borderTop: '1px solid #1c1c1c' }}>
+      <div className="main-content" style={{ padding: '5rem 2.5rem 2.5rem' }}>
 
-      <div className="main-content" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '4rem' }}>
-        
-        {/* Brand Section */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-          <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', textDecoration: 'none' }}>
-            <div style={{ background: 'var(--gradient-main)', borderRadius: '10px', padding: '6px' }}>
-              <ShoppingBag size={22} color="white" />
+        {/* Grid */}
+        <div style={{ display: 'grid', gridTemplateColumns: '1.75fr repeat(3, 1fr)', gap: '4rem', paddingBottom: '4rem', borderBottom: '1px solid rgba(255,255,255,0.07)' }}>
+
+          {/* Brand */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+            <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+              {/* SVG Monogram mark — white version */}
+              <svg width="32" height="32" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <rect x="4" y="4" width="28" height="28" rx="1" stroke="rgba(255,255,255,0.7)" strokeWidth="1" fill="none" transform="rotate(45 18 18)" />
+                <rect x="7" y="7" width="22" height="22" rx="0.5" stroke="rgba(255,255,255,0.3)" strokeWidth="0.4" fill="none" transform="rotate(45 18 18)" />
+                <path
+                  d="M22 13.5 C22 11.6 20.4 10.5 18 10.5 C15.6 10.5 14 11.8 14 13.8 C14 15.6 15.2 16.4 17.5 17 L18.5 17.3 C20.8 17.9 22 18.8 22 20.8 C22 22.8 20.3 24 17.8 24 C15.3 24 13.5 22.8 13.5 21"
+                  stroke="rgba(255,255,255,0.85)"
+                  strokeWidth="1.25"
+                  strokeLinecap="round"
+                  fill="none"
+                />
+              </svg>
+              <div style={{ lineHeight: 1 }}>
+                <span style={{ fontFamily: '"Cormorant Garamond", Georgia, serif', fontWeight: 600, fontSize: '1.2rem', letterSpacing: '0.18em', textTransform: 'uppercase', color: 'white', display: 'block' }}>
+                  Shopzone
+                </span>
+                <span style={{ fontFamily: 'Inter, sans-serif', fontWeight: 500, fontSize: '0.48rem', letterSpacing: '0.28em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.3)', display: 'block', marginTop: '2px' }}>
+                  Est. 2025 · Premium
+                </span>
+              </div>
+            </Link>
+            <p style={{ color: 'rgba(255,255,255,0.35)', fontSize: '0.875rem', lineHeight: 1.8, maxWidth: 260, margin: 0 }}>
+              Premium collections curated for the discerning individual. Quality and craft — delivered.
+            </p>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+              {[
+                { Icon: Mail,   text: 'support@shopzone.com' },
+                { Icon: Phone,  text: '+1 (555) 123-4567' },
+                { Icon: MapPin, text: '123 Commerce St, Tech City' },
+              ].map(({ Icon, text }) => (
+                <div key={text} style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', fontSize: '0.8rem', color: 'rgba(255,255,255,0.3)' }}>
+                  <Icon size={13} strokeWidth={1.5} />
+                  {text}
+                </div>
+              ))}
             </div>
-            <span style={{ fontSize: '1.5rem', fontWeight: '800', background: 'var(--gradient-main)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
-              ShopZone
-            </span>
-          </Link>
-          <p style={{ lineHeight: '1.7', fontSize: '1rem', maxWidth: '300px' }}>
-            Elevating your lifestyle with premium products. Quality, design, and innovation at your fingertips.
-          </p>
-          <div style={{ display: 'flex', gap: '0.75rem' }}>
-            {[Facebook, Twitter, Instagram, Linkedin].map((Icon, i) => (
-              <a key={i} href="#" style={{ 
-                color: 'var(--text-muted)', 
-                background: 'rgba(255,255,255,0.03)', 
-                padding: '10px', 
-                borderRadius: '50%', 
-                display: 'flex', 
-                alignItems: 'center', 
-                justifyContent: 'center',
-                transition: 'all 0.3s ease',
-                border: '1px solid rgba(255,255,255,0.05)'
-              }}
-              onMouseEnter={(e) => { 
-                e.currentTarget.style.color = 'white'; 
-                e.currentTarget.style.background = 'var(--primary)'; 
-                e.currentTarget.style.borderColor = 'transparent';
-                e.currentTarget.style.transform = 'translateY(-3px)';
-              }}
-              onMouseLeave={(e) => { 
-                e.currentTarget.style.color = 'var(--text-muted)'; 
-                e.currentTarget.style.background = 'rgba(255,255,255,0.03)';
-                e.currentTarget.style.borderColor = 'rgba(255,255,255,0.05)';
-                e.currentTarget.style.transform = 'translateY(0)';
-              }}
-              >
-                <Icon size={18} />
-              </a>
-            ))}
+            <div style={{ display: 'flex', gap: '0.875rem' }}>
+              {[Instagram, Twitter, Github].map((Icon, i) => (
+                <a key={i} href="#"
+                  style={{ color: 'rgba(255,255,255,0.25)', transition: 'color var(--duration) var(--ease)' }}
+                  onMouseOver={e => e.currentTarget.style.color = 'white'}
+                  onMouseOut ={e => e.currentTarget.style.color = 'rgba(255,255,255,0.25)'}
+                >
+                  <Icon size={17} strokeWidth={1.5} />
+                </a>
+              ))}
+            </div>
+          </div>
+
+          {/* Nav sections */}
+          {sections.map(sec => (
+            <div key={sec.title}>
+              <p style={{ fontSize: '0.6rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.15em', color: 'rgba(255,255,255,0.3)', marginBottom: '1.5rem' }}>
+                {sec.title}
+              </p>
+              <ul style={{ listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                {sec.links.map(({ label, to }) => (
+                  <li key={label}>
+                    <Link to={to}
+                      style={{ fontSize: '0.875rem', color: 'rgba(255,255,255,0.45)', transition: 'color var(--duration) var(--ease)' }}
+                      onMouseOver={e => e.currentTarget.style.color = 'white'}
+                      onMouseOut ={e => e.currentTarget.style.color = 'rgba(255,255,255,0.45)'}
+                    >
+                      {label}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))}
+        </div>
+
+        {/* Bottom */}
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: '2rem', fontSize: '0.7rem', color: 'rgba(255,255,255,0.2)', letterSpacing: '0.04em' }}>
+          <span>© {new Date().getFullYear()} Shopzone. All rights reserved.</span>
+          <div style={{ display: 'flex', gap: '2rem' }}>
+            <Link to="/contact" style={{ color: 'inherit' }}>Privacy</Link>
+            <Link to="/contact" style={{ color: 'inherit' }}>Terms</Link>
           </div>
         </div>
-
-        {/* Quick Links */}
-        <div>
-          <h3 style={{ fontSize: '1.1rem', marginBottom: '1.5rem', color: 'white' }}>Company</h3>
-          <ul style={{ listStyle: 'none', padding: 0, display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-            {['About Us', 'Careers', 'Press', 'Blog'].map((link) => (
-              <li key={link}>
-                <Link to="#" style={{ color: 'var(--text-muted)', textDecoration: 'none', transition: 'all 0.2s', fontSize: '0.95rem' }}
-                  onMouseEnter={(e) => { e.target.style.color = 'var(--primary)'; e.target.style.paddingLeft = '5px'; }}
-                  onMouseLeave={(e) => { e.target.style.color = 'var(--text-muted)'; e.target.style.paddingLeft = '0'; }}
-                >
-                  {link}
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </div>
-
-        {/* Support */}
-        <div>
-          <h3 style={{ fontSize: '1.1rem', marginBottom: '1.5rem', color: 'white' }}>Support</h3>
-          <ul style={{ listStyle: 'none', padding: 0, display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-            {['Shipping Policy', 'Returns & Refunds', 'Privacy Policy', 'Terms of Service'].map((link) => (
-              <li key={link}>
-                <a href="#" style={{ color: 'var(--text-muted)', textDecoration: 'none', transition: 'all 0.2s', fontSize: '0.95rem' }}
-                   onMouseEnter={(e) => { e.target.style.color = 'var(--primary)'; e.target.style.paddingLeft = '5px'; }}
-                   onMouseLeave={(e) => { e.target.style.color = 'var(--text-muted)'; e.target.style.paddingLeft = '0'; }}
-                >
-                  {link}
-                </a>
-              </li>
-            ))}
-          </ul>
-        </div>
-
-        {/* Contact info (New) */}
-         <div>
-          <h3 style={{ fontSize: '1.1rem', marginBottom: '1.5rem', color: 'white' }}>Contact</h3>
-          <ul style={{ listStyle: 'none', padding: 0, display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
-            <li style={{ display: 'flex', gap: '10px', alignItems: 'center', color: 'var(--text-muted)', fontSize: '0.95rem' }}>
-              <MapPin size={18} color="var(--primary)" />
-              123 Innovation Dr, Tech City
-            </li>
-            <li style={{ display: 'flex', gap: '10px', alignItems: 'center', color: 'var(--text-muted)', fontSize: '0.95rem' }}>
-              <Phone size={18} color="var(--primary)" />
-              +1 (555) 123-4567
-            </li>
-            <li style={{ display: 'flex', gap: '10px', alignItems: 'center', color: 'var(--text-muted)', fontSize: '0.95rem' }}>
-              <Mail size={18} color="var(--primary)" />
-              support@shopzone.com
-            </li>
-          </ul>
-        </div>
-      </div>
-      
-      <div style={{ 
-        maxWidth: '1400px', 
-        margin: '4rem auto 0', 
-        paddingTop: '2rem', 
-        borderTop: '1px solid rgba(255,255,255,0.05)', 
-        textAlign: 'center', 
-        color: 'rgba(255,255,255,0.4)',
-        fontSize: '0.875rem',
-        paddingLeft: '2rem',
-        paddingRight: '2rem'
-      }}>
-        <p>© {new Date().getFullYear()} ShopZone Inc. All rights reserved.</p>
       </div>
     </footer>
   );
-};
-
-export default Footer;
+}

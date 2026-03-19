@@ -1,165 +1,321 @@
-import { useState, useEffect } from 'react';
-import { Link, useLocation } from 'react-router-dom';
-import { ShoppingCart, ShoppingBag, Home, Phone, Info } from 'lucide-react';
-import { useSelector } from 'react-redux';
+import { useState, useRef, useEffect } from 'react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { ShoppingBag, Heart, Search, X } from 'lucide-react';
+import { useSelector, useDispatch } from 'react-redux';
+import { setSearchTerm } from '../redux/filterSlice';
 import { motion, AnimatePresence } from 'framer-motion';
 
-const Navbar = () => {
-  const [scrolled, setScrolled] = useState(false);
-  const cartItems = useSelector((state) => state.cart.items);
-  const count = cartItems.reduce((acc, item) => acc + (item.quantity || 1), 0);
-  const location = useLocation();
+export default function Navbar() {
+  const dispatch       = useDispatch();
+  const navigate       = useNavigate();
+  const cartItems      = useSelector(s => s.cart.items);
+  const wishlistItems  = useSelector(s => s.wishlist.items);
+  const cartCount      = cartItems.reduce((a, i) => a + (i.quantity || 1), 0);
+  const wishCount      = wishlistItems.length;
+  const { pathname }   = useLocation();
 
+  const [searchOpen, setSearchOpen] = useState(false);
+  const [query, setQuery]           = useState('');
+  const inputRef = useRef(null);
+
+  // Auto-focus when search opens
   useEffect(() => {
-    const handleScroll = () => setScrolled(window.scrollY > 20);
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
+    if (searchOpen && inputRef.current) {
+      inputRef.current.focus();
+    }
+  }, [searchOpen]);
 
-  const isActive = (path) => location.pathname === path;
+  const handleSearch = (e) => {
+    e.preventDefault();
+    if (!query.trim()) return;
+    dispatch(setSearchTerm(query.trim()));
+    navigate('/shop');
+    setSearchOpen(false);
+    setQuery('');
+  };
+
+  const handleClose = () => {
+    setSearchOpen(false);
+    setQuery('');
+    dispatch(setSearchTerm(''));
+  };
+
+  const links = [
+    { label: 'Shop',    to: '/shop' },
+    { label: 'About',   to: '/about-us' },
+    { label: 'Contact', to: '/contact' },
+  ];
 
   return (
-    <nav 
-      className={`navbar ${scrolled ? 'glass-heavy' : ''}`}
-      style={{
-        position: 'sticky',
-        top: 0,
-        zIndex: 1000,
-        height: scrolled ? '65px' : '80px',
-        display: 'flex',
-        alignItems: 'center',
-        transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
-        background: scrolled ? 'var(--bg-glass-heavy)' : 'transparent',
-        borderBottom: scrolled ? '1px solid var(--border-soft)' : '1px solid transparent'
-      }}
-    >
-      <div className="navbar-container" style={{ width: '100%', maxWidth: '1400px', margin: '0 auto', padding: '0 2rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        {/* Logo */}
-        <Link to="/" className="navbar-logo" style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', textDecoration: 'none' }}>
-          <motion.div 
-            whileHover={{ rotate: 5, scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            style={{ 
-              background: 'var(--gradient-base)', 
-              borderRadius: '10px', 
-              padding: '6px',
-              display: 'flex',
-              boxShadow: '0 4px 12px rgba(129, 140, 248, 0.4)'
+    <>
+      <header style={{
+        position: 'sticky', top: 0, zIndex: 1000,
+        /* ── Glassmorphism ── */
+        background: 'rgba(255, 255, 255, 0.55)',
+        backdropFilter: 'blur(22px) saturate(180%)',
+        WebkitBackdropFilter: 'blur(22px) saturate(180%)',
+        borderBottom: '1px solid rgba(255, 255, 255, 0.45)',
+        borderTop: '1px solid rgba(255, 255, 255, 0.7)',
+        boxShadow: '0 4px 24px rgba(28, 28, 30, 0.07), inset 0 1px 0 rgba(255,255,255,0.8)',
+        transition: 'box-shadow var(--duration) var(--ease)',
+      }}>
+        <nav className="main-content" style={{
+          display: 'flex',
+          alignItems: 'center',
+          height: '64px',
+          gap: '2rem',
+        }}>
+
+          {/* ── LEFT: Logo ── */}
+          <Link to="/" style={{ textDecoration: 'none', flexShrink: 0, display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+
+            {/* SVG Monogram mark */}
+            <svg width="36" height="36" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+              {/* Outer square rotated 45° — diamond frame */}
+              <rect x="4" y="4" width="28" height="28" rx="1" stroke="#0a0a0a" strokeWidth="2" fill="none" transform="rotate(45 18 18)" />
+              {/* Inner ring */}
+              <rect x="7" y="7" width="22" height="22" rx="0.5" stroke="#0a0a0a" strokeWidth="0.8" fill="none" transform="rotate(45 18 18)" />
+              {/* Stylised S letterform — two arcs */}
+              <path
+                d="M22 13.5 C22 11.6 20.4 10.5 18 10.5 C15.6 10.5 14 11.8 14 13.8 C14 15.6 15.2 16.4 17.5 17 L18.5 17.3 C20.8 17.9 22 18.8 22 20.8 C22 22.8 20.3 24 17.8 24 C15.3 24 13.5 22.8 13.5 21"
+                stroke="#0a0a0a"
+                strokeWidth="2"
+                strokeLinecap="round"
+                fill="none"
+              />
+            </svg>
+
+            {/* Wordmark block */}
+            <div style={{ display: 'flex', flexDirection: 'column', lineHeight: 1 }}>
+              <span style={{
+                fontFamily: '"Cormorant Garamond", Georgia, serif',
+                fontWeight: 800,
+                fontSize: '1.25rem',
+                letterSpacing: '0.18em',
+                textTransform: 'uppercase',
+                color: 'var(--text-main)',
+                display: 'block',
+              }}>
+                Shopzone
+              </span>
+              <span style={{
+                fontFamily: 'Inter, sans-serif',
+                fontWeight: 500,
+                fontSize: '0.5rem',
+                letterSpacing: '0.28em',
+                textTransform: 'uppercase',
+                color: 'var(--text-subtle)',
+                display: 'block',
+                marginTop: '2px',
+              }}>
+                Est. 2025 · Premium
+              </span>
+            </div>
+          </Link>
+
+          {/* ── CENTRE: Nav links ── */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.125rem', flex: 1 }}>
+            {links.map(({ label, to }) => {
+              const active = pathname === to;
+              return (
+                <Link key={to} to={to}
+                  style={{
+                    padding: '0.375rem 0.875rem',
+                    fontSize: '0.7rem',
+                    fontWeight: 600,
+                    letterSpacing: '0.12em',
+                    textTransform: 'uppercase',
+                    color: active ? 'var(--text-main)' : 'var(--text-muted)',
+                    borderBottom: active ? '1px solid var(--text-main)' : '1px solid transparent',
+                    paddingBottom: '0.375rem',
+                    transition: 'color var(--duration) var(--ease), border-color var(--duration) var(--ease)',
+                  }}
+                  onMouseOver={e => { if (!active) e.currentTarget.style.color = 'var(--text-main)'; }}
+                  onMouseOut ={e => { if (!active) e.currentTarget.style.color = 'var(--text-muted)'; }}
+                >
+                  {label}
+                </Link>
+              );
+            })}
+          </div>
+
+          {/* ── RIGHT: Icons ── */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.375rem', flexShrink: 0 }}>
+
+            {/* Search toggle */}
+            <button
+              onClick={() => setSearchOpen(o => !o)}
+              style={{
+                width: 36, height: 36,
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                background: searchOpen ? 'var(--bg-muted)' : 'transparent',
+                border: 'none', borderRadius: 'var(--radius-md)',
+                color: searchOpen ? 'var(--text-main)' : 'var(--text-muted)',
+                cursor: 'pointer',
+                transition: 'all var(--duration) var(--ease)',
+              }}
+              onMouseOver={e => { if (!searchOpen) { e.currentTarget.style.background = 'var(--bg-muted)'; e.currentTarget.style.color = 'var(--text-main)'; }}}
+              onMouseOut ={e => { if (!searchOpen) { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = 'var(--text-muted)'; }}}
+            >
+              {searchOpen
+                ? <X size={17} strokeWidth={1.75} />
+                : <Search size={17} strokeWidth={1.75} />
+              }
+            </button>
+
+            {/* Wishlist */}
+            <Link to="/wishlist" title="Wishlist"
+              style={{
+                width: 36, height: 36,
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                color: wishCount > 0 ? '#e11d48' : 'var(--text-muted)',
+                borderRadius: 'var(--radius-md)',
+                transition: 'all var(--duration) var(--ease)',
+              }}
+              onMouseOver={e => { e.currentTarget.style.background = 'rgba(225,29,72,0.08)'; e.currentTarget.style.color = '#e11d48'; }}
+              onMouseOut ={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = wishCount > 0 ? '#e11d48' : 'var(--text-muted)'; }}
+            >
+              <Heart
+                size={19}
+                strokeWidth={1.75}
+                fill={wishCount > 0 ? '#e11d48' : 'transparent'}
+                color="currentColor"
+              />
+            </Link>
+
+            {/* Divider */}
+            <div style={{ width: 1, height: 18, background: 'var(--border-base)', margin: '0 0.125rem' }} />
+
+            {/* Bag */}
+            <Link to="/cart">
+              <div
+                style={{
+                  display: 'flex', alignItems: 'center', gap: '0.4rem',
+                  padding: '0.45rem 1.125rem',
+                  background: 'var(--brand)', color: 'white',
+                  borderRadius: 'var(--radius-sm)',
+                  fontSize: '0.65rem', fontWeight: 700,
+                  letterSpacing: '0.12em', textTransform: 'uppercase',
+                  cursor: 'pointer',
+                  transition: 'background var(--duration) var(--ease)',
+                }}
+                onMouseOver={e => e.currentTarget.style.background = 'var(--brand-hover)'}
+                onMouseOut ={e => e.currentTarget.style.background = 'var(--brand)'}
+              >
+                <ShoppingBag size={14} strokeWidth={2} />
+                Bag
+                {cartCount > 0 && (
+                  <span style={{
+                    background: 'white', color: 'var(--brand)',
+                    borderRadius: '99px', minWidth: 16, height: 16,
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    fontSize: '0.55rem', fontWeight: 900, paddingInline: '2px',
+                  }}>
+                    {cartCount > 9 ? '9+' : cartCount}
+                  </span>
+                )}
+              </div>
+            </Link>
+
+          </div>
+        </nav>
+      </header>
+
+      {/* ── SEARCH OVERLAY PANEL ── */}
+      <AnimatePresence>
+        {searchOpen && (
+          <motion.div
+            key="search-panel"
+            initial={{ y: -8, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            exit={{ y: -8, opacity: 0 }}
+            transition={{ duration: 0.18, ease: 'easeOut' }}
+            style={{
+              position: 'fixed', top: 64, left: 0, right: 0, zIndex: 999,
+              background: 'white',
+              borderBottom: '1px solid var(--border-base)',
+              boxShadow: 'var(--shadow-lg)',
             }}
           >
-            <ShoppingBag size={20} color="white" />
-          </motion.div>
-          <span style={{ 
-            fontSize: '1.4rem', 
-            fontWeight: '800', 
-            letterSpacing: '-0.03em',
-            background: 'var(--gradient-base)', 
-            WebkitBackgroundClip: 'text', 
-            WebkitTextFillColor: 'transparent' 
-          }}>
-            ShopZone
-          </span>
-        </Link>
-        
-        {/* Navigation Links */}
-        <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
-          <div style={{ display: 'flex', gap: '0.25rem' }}>
-            <NavLink to="/" icon={<Home size={16} />} text="Home" active={isActive('/')} />
-            <NavLink to="/shop" icon={<ShoppingBag size={16} />} text="Shop" active={isActive('/shop')} />
-            <NavLink to="/about-us" icon={<Info size={16} />} text="About" active={isActive('/about-us')} />
-            <NavLink to="/contact" icon={<Phone size={16} />} text="Contact" active={isActive('/contact')} />
-          </div>
-          
-          <div style={{ width: '1px', height: '20px', background: 'var(--border-soft)', margin: '0 0.5rem' }} />
-
-          {/* Cart Interaction */}
-          <Link to="/cart" style={{ position: 'relative', textDecoration: 'none' }}>
-            <motion.div 
-              whileHover={{ scale: 1.05, background: 'rgba(255,255,255,0.08)' }}
-              whileTap={{ scale: 0.95 }}
-              style={{ 
-                background: isActive('/cart') ? 'var(--primary)' : 'rgba(255, 255, 255, 0.03)',
-                padding: '0.6rem',
-                borderRadius: '50%',
-                display: 'flex',
-                boxShadow: isActive('/cart') ? '0 4px 15px var(--primary-glow)' : 'none',
-                transition: 'all 0.3s ease',
-                border: '1px solid var(--border-soft)'
-              }}
-            >
-              <ShoppingCart size={18} color={isActive('/cart') ? 'white' : 'var(--text-secondary)'} />
-              
-              <AnimatePresence>
-                {count > 0 && (
-                  <motion.span 
-                    initial={{ scale: 0 }}
-                    animate={{ scale: 1 }}
-                    exit={{ scale: 0 }}
-                    style={{
-                      position: 'absolute',
-                      top: '-2px',
-                      right: '-2px',
-                      background: 'var(--accent-rose)',
-                      color: 'white',
-                      borderRadius: '50%',
-                      minWidth: '18px',
-                      height: '18px',
-                      display: 'flex',
-                      justifyContent: 'center',
-                      alignItems: 'center',
-                      fontSize: '0.65rem',
-                      fontWeight: '800',
-                      boxShadow: '0 2px 8px rgba(0,0,0,0.3)',
-                      padding: '0 2px',
-                      border: '2px solid var(--bg-deep)'
-                    }}
+            <div className="main-content" style={{ padding: '1.5rem 2.5rem' }}>
+              <form onSubmit={handleSearch} style={{ display: 'flex', alignItems: 'center', gap: '0' }}>
+                <Search size={18} strokeWidth={1.5} color="var(--text-subtle)" style={{ flexShrink: 0, marginRight: '0.875rem' }} />
+                <input
+                  ref={inputRef}
+                  type="text"
+                  value={query}
+                  onChange={e => setQuery(e.target.value)}
+                  placeholder="Search for products, brands, categories…"
+                  style={{
+                    flex: 1,
+                    border: 'none', outline: 'none',
+                    fontSize: '1.125rem',
+                    fontFamily: '"Cormorant Garamond", Georgia, serif',
+                    fontWeight: 400,
+                    color: 'var(--text-main)',
+                    background: 'transparent',
+                    letterSpacing: '0.02em',
+                  }}
+                />
+                {query && (
+                  <button type="button" onClick={() => setQuery('')}
+                    style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-subtle)', padding: '0.25rem', marginRight: '0.75rem' }}
                   >
-                    {count}
-                  </motion.span>
+                    <X size={16} />
+                  </button>
                 )}
-              </AnimatePresence>
-            </motion.div>
-          </Link>
-        </div>
-      </div>
-    </nav>
+                <button type="submit" className="btn-primary" style={{ flexShrink: 0, padding: '0.625rem 1.5rem' }}>
+                  Search
+                </button>
+              </form>
+
+              {/* Helpful quick links */}
+              <div style={{ display: 'flex', gap: '0.5rem', marginTop: '1.25rem', flexWrap: 'wrap' }}>
+                <span style={{ fontSize: '0.675rem', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--text-subtle)', paddingTop: '0.2rem' }}>
+                  Popular:
+                </span>
+                {['Smartphones', 'Laptops', 'Skincare', 'Watches', 'Bags'].map(term => (
+                  <button
+                    key={term}
+                    onClick={() => {
+                      dispatch(setSearchTerm(term));
+                      navigate('/shop');
+                      setSearchOpen(false);
+                      setQuery('');
+                    }}
+                    style={{
+                      background: 'var(--bg-muted)', border: '1px solid var(--border-base)',
+                      borderRadius: '99px', padding: '0.2rem 0.875rem',
+                      fontSize: '0.75rem', fontWeight: 500, color: 'var(--text-muted)',
+                      cursor: 'pointer', transition: 'all var(--duration) var(--ease)',
+                    }}
+                    onMouseOver={e => { e.currentTarget.style.background = 'var(--brand)'; e.currentTarget.style.color = 'white'; e.currentTarget.style.borderColor = 'var(--brand)'; }}
+                    onMouseOut ={e => { e.currentTarget.style.background = 'var(--bg-muted)'; e.currentTarget.style.color = 'var(--text-muted)'; e.currentTarget.style.borderColor = 'var(--border-base)'; }}
+                  >
+                    {term}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* dim backdrop */}
+      <AnimatePresence>
+        {searchOpen && (
+          <motion.div
+            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            onClick={handleClose}
+            style={{
+              position: 'fixed', inset: 0, top: 64,
+              background: 'rgba(28,28,30,0.25)',
+              zIndex: 998, backdropFilter: 'blur(2px)',
+            }}
+          />
+        )}
+      </AnimatePresence>
+    </>
   );
-};
-
-const NavLink = ({ to, icon, text, active }) => (
-  <Link to={to} style={{ textDecoration: 'none', position: 'relative' }}>
-    <motion.div
-      style={{
-        display: 'flex',
-        alignItems: 'center',
-        gap: '0.5rem',
-        padding: '0.5rem 1rem',
-        borderRadius: '9999px',
-        color: active ? 'white' : 'var(--text-secondary)',
-        background: active ? 'rgba(255, 255, 255, 0.05)' : 'transparent',
-        transition: 'all 0.3s ease'
-      }}
-      whileHover={{ 
-        color: 'white',
-        background: 'rgba(255, 255, 255, 0.08)',
-      }}
-    >
-      <span style={{ opacity: active ? 1 : 0.7, display: 'flex' }}>{icon}</span>
-      <span style={{ fontWeight: active ? 700 : 500, fontSize: '0.9rem' }}>{text}</span>
-      {active && (
-        <motion.div 
-          layoutId="nav-active"
-          style={{
-            position: 'absolute',
-            inset: '0',
-            background: 'rgba(255, 255, 255, 0.05)',
-            borderRadius: '9999px',
-            zIndex: -1
-          }}
-        />
-      )}
-    </motion.div>
-  </Link>
-);
-
-export default Navbar;
+}

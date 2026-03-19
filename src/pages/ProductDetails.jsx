@@ -1,161 +1,177 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { addToCart } from '../redux/cartSlice';
+import { toggleWishlist } from '../redux/wishlistSlice';
 import { motion } from 'framer-motion';
-import { ArrowLeft, ShoppingCart, Star, Truck, Shield } from 'lucide-react';
+import { ArrowLeft, ShoppingBag, Heart, Star, Truck, ShieldCheck, RotateCcw } from 'lucide-react';
 import toast from 'react-hot-toast';
 
-const ProductDetails = () => {
+const guarantees = [
+  { Icon: Truck,       text: 'Free shipping on orders over $50' },
+  { Icon: ShieldCheck, text: '100% authentic — every item verified' },
+  { Icon: RotateCcw,   text: 'Free returns within 30 days' },
+];
+
+export default function ProductDetails() {
   const { id } = useParams();
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
   const dispatch = useDispatch();
+  const wishlistItems = useSelector(s => s.wishlist.items);
+  const isWishlisted  = product ? wishlistItems.some(i => i.id === product.id) : false;
 
   useEffect(() => {
+    setLoading(true);
     fetch(`https://dummyjson.com/products/${id}`)
-      .then((res) => res.json())
-      .then((data) => {
-        setProduct(data);
-        setLoading(false);
-      });
+      .then(r => r.json())
+      .then(d => { setProduct(d); setLoading(false); });
   }, [id]);
 
   const handleAddToCart = () => {
     dispatch(addToCart(product));
-    toast.success(`${product.title} added to cart!`, {
-      style: {
-        background: 'rgba(30, 41, 59, 0.9)',
-        color: '#fff',
-        backdropFilter: 'blur(10px)',
-        border: '1px solid rgba(255,255,255,0.1)'
-      },
-      iconTheme: {
-        primary: '#6366f1',
-        secondary: '#fff',
-      },
+    toast.success("Added to bag!", {
+      style: { background: '#0f172a', color: '#fff', borderRadius: '4px', fontSize: '0.875rem' },
     });
   };
 
-  if (loading) return <div className="loading-spinner"></div>;
-  if (!product) return <div>Product not found</div>;
+  const handleWishlist = () => {
+    dispatch(toggleWishlist(product));
+    toast(isWishlisted ? 'Removed from wishlist' : 'Added to wishlist ♡', {
+      style: { background: '#0f172a', color: '#fff', borderRadius: '4px', fontSize: '0.875rem' },
+    });
+  };
+
+  if (loading) return <div className="loading-container"><div className="loading-spinner" /></div>;
+  if (!product) return (
+    <div className="loading-container" style={{ flexDirection: 'column', gap: '1rem' }}>
+      <h2>Product not found</h2>
+      <Link to="/shop"><button className="btn-secondary">Back to Shop</button></Link>
+    </div>
+  );
+
+  const strikethrough = (product.price / (1 - product.discountPercentage / 100)).toFixed(2);
 
   return (
-    <div className="main-content">
-      <Link to="/shop" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', textDecoration: 'none', color: 'var(--text-muted)', marginBottom: '2rem' }}>
-        <ArrowLeft size={20} /> Back to Shop
+    <div className="main-content" style={{ padding: '2.5rem 2rem 5rem' }}>
+
+      {/* Back */}
+      <Link to="/shop" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.875rem', fontWeight: 600, color: 'var(--text-muted)', marginBottom: '2rem' }}>
+        <ArrowLeft size={16} /> Back to Shop
       </Link>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(350px, 1fr))', gap: '4rem' }}>
-        {/* Image Section */}
-        <motion.div 
-          initial={{ opacity: 0, x: -50 }}
-          animate={{ opacity: 1, x: 0 }}
-          style={{ position: 'relative' }}
-        >
-          <div className="glass" style={{ 
-            padding: '2rem', 
-            borderRadius: '2rem', 
-            display: 'flex', 
-            justifyContent: 'center', 
-            alignItems: 'center',
-            height: '500px',
-            background: 'white'
-          }}>
-            <img 
-              src={product.thumbnail} 
-              alt={product.title} 
-              style={{ maxHeight: '100%', maxWidth: '100%', objectFit: 'contain' }} 
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '5rem', alignItems: 'start' }}>
+
+        {/* ── Image ── */}
+        <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.4 }}>
+          <div style={{ background: 'var(--bg-subtle)', borderRadius: 'var(--radius-xl)', border: '1px solid var(--border-base)', overflow: 'hidden', height: 480, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '2rem' }}>
+            <motion.img
+              whileHover={{ scale: 1.04 }}
+              transition={{ duration: 0.4 }}
+              src={product.thumbnail}
+              alt={product.title}
+              style={{ maxHeight: '100%', maxWidth: '100%', objectFit: 'contain' }}
             />
           </div>
+          {/* Thumbnail strip */}
+          {product.images?.length > 1 && (
+            <div style={{ display: 'flex', gap: '0.75rem', marginTop: '1rem' }}>
+              {product.images.slice(0, 4).map((img, i) => (
+                <div key={i} style={{ width: 60, height: 60, background: 'var(--bg-subtle)', border: '1px solid var(--border-base)', borderRadius: 'var(--radius-md)', overflow: 'hidden', flexShrink: 0 }}>
+                  <img src={img} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                </div>
+              ))}
+            </div>
+          )}
         </motion.div>
 
-        {/* Info Section */}
-        <motion.div 
-          initial={{ opacity: 0, x: 50 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: 0.2 }}
-        >
-          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1rem' }}>
-            <span style={{ 
-              background: 'rgba(99, 102, 241, 0.1)', 
-              color: 'var(--primary)', 
-              padding: '0.25rem 0.75rem', 
-              borderRadius: '9999px', 
-              fontSize: '0.875rem', 
-              fontWeight: '600',
-              textTransform: 'uppercase'
-            }}>
+        {/* ── Info ── */}
+        <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.4 }}>
+
+          {/* Category + Brand */}
+          <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '0.875rem' }}>
+            <span style={{ display: 'inline-block', background: 'var(--bg-muted)', border: '1px solid var(--border-base)', borderRadius: '99px', padding: '0.25rem 0.75rem', fontSize: '0.7rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--text-muted)' }}>
               {product.category}
             </span>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem', color: '#f59e0b', fontWeight: 'bold' }}>
-              <Star size={16} fill="currentColor" />
-              <span>{product.rating}</span>
-            </div>
-          </div>
-
-          <h1 style={{ fontSize: '3rem', lineHeight: '1.2', marginBottom: '1.5rem', background: 'none', WebkitTextFillColor: 'var(--text-main)' }}>
-            {product.title}
-          </h1>
-
-          <p style={{ fontSize: '1.125rem', color: 'var(--text-muted)', lineHeight: '1.8', marginBottom: '2rem' }}>
-            {product.description}
-          </p>
-
-          <div style={{ display: 'flex', alignItems: 'baseline', gap: '1rem', marginBottom: '2rem' }}>
-            <span style={{ fontSize: '2.5rem', fontWeight: 'bold', color: 'var(--primary)' }}>
-              ${product.price}
-            </span>
-            {product.discountPercentage > 0 && (
-              <span style={{ color: 'var(--text-muted)', textDecoration: 'line-through', fontSize: '1.25rem' }}>
-                ${(product.price / (1 - product.discountPercentage / 100)).toFixed(2)}
+            {product.brand && (
+              <span style={{ display: 'inline-block', background: 'var(--bg-muted)', border: '1px solid var(--border-base)', borderRadius: '99px', padding: '0.25rem 0.75rem', fontSize: '0.7rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--text-muted)' }}>
+                {product.brand}
               </span>
             )}
           </div>
 
-          <motion.button 
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            onClick={handleAddToCart}
-            className="btn-primary"
-            style={{ 
-              width: '100%', 
-              padding: '1.25rem', 
-              fontSize: '1.25rem', 
-              display: 'flex', 
-              justifyContent: 'center', 
-              alignItems: 'center', 
-              gap: '0.75rem',
-              marginBottom: '2rem'
-            }}
-          >
-            <ShoppingCart /> Add to Cart
-          </motion.button>
+          <h1 style={{ fontSize: 'clamp(1.5rem, 2.5vw, 2rem)', fontWeight: 900, letterSpacing: '-0.02em', marginBottom: '0.875rem' }}>
+            {product.title}
+          </h1>
 
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-            <div className="glass" style={{ padding: '1rem', borderRadius: '1rem', display: 'flex', alignItems: 'center', gap: '1rem' }}>
-              <div style={{ background: 'rgba(99, 102, 241, 0.1)', padding: '0.75rem', borderRadius: '50%' }}>
-                <Truck size={24} color="var(--primary)" />
-              </div>
-              <div>
-                <div style={{ fontWeight: '600' }}>Free Delivery</div>
-                <div style={{ fontSize: '0.875rem', color: 'var(--text-muted)' }}>Orders over $50</div>
-              </div>
+          {/* Rating */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '1.5rem', fontSize: '0.875rem' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+              {[1,2,3,4,5].map(s => (
+                <Star key={s} size={14} fill={s <= Math.round(product.rating) ? '#f59e0b' : 'transparent'} color="#f59e0b" />
+              ))}
             </div>
-            <div className="glass" style={{ padding: '1rem', borderRadius: '1rem', display: 'flex', alignItems: 'center', gap: '1rem' }}>
-              <div style={{ background: 'rgba(99, 102, 241, 0.1)', padding: '0.75rem', borderRadius: '50%' }}>
-                <Shield size={24} color="var(--primary)" />
+            <span style={{ fontWeight: 800 }}>{product.rating}</span>
+            <span style={{ color: 'var(--text-subtle)' }}>({product.stock} in stock)</span>
+          </div>
+
+          {/* Price */}
+          <div style={{ display: 'flex', alignItems: 'baseline', gap: '0.75rem', marginBottom: '1.75rem' }}>
+            <span style={{ fontSize: '2rem', fontWeight: 900 }}>${product.price}</span>
+            {product.discountPercentage > 0 && (
+              <>
+                <span style={{ fontSize: '1.125rem', color: 'var(--text-subtle)', textDecoration: 'line-through' }}>${strikethrough}</span>
+                <span style={{ display: 'inline-block', background: '#fef2f2', color: 'var(--accent-red)', borderRadius: '99px', padding: '0.125rem 0.625rem', fontSize: '0.75rem', fontWeight: 800 }}>
+                  {Math.round(product.discountPercentage)}% OFF
+                </span>
+              </>
+            )}
+          </div>
+
+          <p style={{ lineHeight: 1.8, marginBottom: '2rem' }}>{product.description}</p>
+
+          {/* CTA row */}
+          <div style={{ display: 'flex', gap: '0.75rem', marginBottom: '1.5rem' }}>
+            <button
+              onClick={handleAddToCart}
+              className="btn-primary"
+              style={{ flex: 1, justifyContent: 'center', padding: '1rem', fontSize: '0.9375rem' }}
+            >
+              <ShoppingBag size={18} /> Add to Bag
+            </button>
+            <button
+              onClick={handleWishlist}
+              title={isWishlisted ? 'Remove from wishlist' : 'Save to wishlist'}
+              style={{
+                width: 52, flexShrink: 0,
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                border: isWishlisted ? '1.5px solid #e11d48' : '1px solid var(--border-strong)',
+                borderRadius: 'var(--radius-md)',
+                background: isWishlisted ? '#fff0f2' : 'transparent',
+                cursor: 'pointer',
+                transition: 'all var(--duration) var(--ease)',
+              }}
+            >
+              <Heart
+                size={20}
+                strokeWidth={2}
+                color={isWishlisted ? '#e11d48' : 'var(--text-muted)'}
+                fill={isWishlisted ? '#e11d48' : 'transparent'}
+              />
+            </button>
+          </div>
+
+          {/* Guarantees */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', borderTop: '1px solid var(--border-base)', paddingTop: '1.5rem' }}>
+            {guarantees.map(({ Icon, text }) => (
+              <div key={text} style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', fontSize: '0.8125rem', color: 'var(--text-muted)' }}>
+                <Icon size={16} strokeWidth={1.75} />
+                {text}
               </div>
-              <div>
-                <div style={{ fontWeight: '600' }}>Secure Payment</div>
-                <div style={{ fontSize: '0.875rem', color: 'var(--text-muted)' }}>100% Protected</div>
-              </div>
-            </div>
+            ))}
           </div>
         </motion.div>
       </div>
     </div>
   );
-};
-
-export default ProductDetails;
+}

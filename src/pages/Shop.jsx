@@ -1,298 +1,536 @@
-import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Search, Filter, ShoppingCart, Star, X, LayoutGrid, Sparkles, Sofa, Apple, Gem, Smartphone, Watch, Camera, Footprints, Shirt, Glasses, Package } from 'lucide-react';
-import { addToCart } from '../redux/cartSlice';
-import { setCategory, setPriceRange, setSearchTerm } from '../redux/filterSlice';
-import toast from 'react-hot-toast';
+import { Search, SlidersHorizontal, ChevronRight, ChevronDown, X } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import {
+  toggleCategory, toggleBrand,
+  setMinPrice, setMaxPrice,
+  setSearchTerm, clearFilters,
+} from '../redux/filterSlice';
+import ProductCard from '../components/ProductCard';
 
-const Shop = () => {
+const MAX = 2000;
+const MIN = 0;
+
+const CATEGORIES = [
+  { id: 'beauty',              label: 'Beauty' },
+  { id: 'fragrances',         label: 'Fragrances' },
+  { id: 'furniture',          label: 'Furniture' },
+  { id: 'groceries',          label: 'Groceries' },
+  { id: 'home-decoration',    label: 'Home Decor' },
+  { id: 'kitchen-accessories',label: 'Kitchen' },
+  { id: 'laptops',            label: 'Laptops' },
+  { id: 'mens-shirts',        label: "Men's Fashion" },
+  { id: 'mens-shoes',         label: "Men's Shoes" },
+  { id: 'mens-watches',       label: 'Watches' },
+  { id: 'mobile-accessories', label: 'Accessories' },
+  { id: 'skin-care',          label: 'Skin Care' },
+  { id: 'smartphones',        label: 'Smartphones' },
+  { id: 'sports-accessories', label: 'Sports' },
+  { id: 'sunglasses',         label: 'Sunglasses' },
+  { id: 'tablets',            label: 'Tablets' },
+  { id: 'tops',               label: 'Tops' },
+  { id: 'womens-bags',        label: 'Bags' },
+  { id: 'womens-dresses',     label: 'Dresses' },
+  { id: 'womens-jewellery',   label: 'Jewellery' },
+  { id: 'womens-shoes',       label: "Women's Shoes" },
+  { id: 'womens-watches',     label: "Women's Watches" },
+];
+
+export default function Shop() {
   const dispatch = useDispatch();
-  const [products, setProducts] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const { category, priceRange, searchTerm } = useSelector((state) => state.filters);
+  const [products, setProducts]   = useState([]);
+  const [loading, setLoading]     = useState(true);
+  const [sidebarOpen, setSidebar] = useState(true);
+  const [sortBy, setSortBy]       = useState('default');
 
-  const categoryMap = [
-    { id: "all", label: "All Products", icon: <LayoutGrid size={18} /> },
-    { id: "beauty", label: "Beauty", icon: <Sparkles size={18} /> },
-    { id: "fragrances", label: "Fragrances", icon: <Sparkles size={18} /> },
-    { id: "furniture", label: "Furniture", icon: <Sofa size={18} /> },
-    { id: "groceries", label: "Groceries", icon: <Apple size={18} /> },
-    { id: "home-decoration", label: "Home Decor", icon: <Gem size={18} /> },
-    { id: "kitchen-accessories", label: "Kitchen", icon: <Gem size={18} /> },
-    { id: "laptops", label: "Laptops", icon: <Smartphone size={18} /> },
-    { id: "mens-shirts", label: "Men's Fashion", icon: <Shirt size={18} /> },
-    { id: "mens-shoes", label: "Men's Shoes", icon: <Footprints size={18} /> },
-    { id: "mens-watches", label: "Watches", icon: <Watch size={18} /> },
-    { id: "mobile-accessories", label: "Accessories", icon: <Smartphone size={18} /> },
-    { id: "motorcycle", label: "Motorcycle", icon: <Package size={18} /> },
-    { id: "skin-care", label: "Skin Care", icon: <Sparkles size={18} /> },
-    { id: "smartphones", label: "Smartphones", icon: <Smartphone size={18} /> },
-    { id: "sports-accessories", label: "Sports", icon: <Package size={18} /> },
-    { id: "sunglasses", label: "Sunglasses", icon: <Glasses size={18} /> },
-    { id: "tablets", label: "Tablets", icon: <Smartphone size={18} /> },
-    { id: "tops", label: "Tops", icon: <Shirt size={18} /> },
-    { id: "vehicle", label: "Vehicle", icon: <Package size={18} /> },
-    { id: "womens-bags", label: "Bags", icon: <Gem size={18} /> },
-    { id: "womens-dresses", label: "Dresses", icon: <Shirt size={18} /> },
-    { id: "womens-jewellery", label: "Jewellery", icon: <Gem size={18} /> },
-    { id: "womens-shoes", label: "Women's Shoes", icon: <Footprints size={18} /> },
-    { id: "womens-watches", label: "Women's Watches", icon: <Watch size={18} /> }
-  ];
+  const { categories, brands, minPrice, maxPrice, searchTerm } =
+    useSelector(s => s.filters);
+
+  // Local input state for typed fields (uncontrolled-feel)
+  const [localMin, setLocalMin] = useState(String(minPrice));
+  const [localMax, setLocalMax] = useState(String(maxPrice));
+
+  // Keep local inputs in sync when Redux resets (clearFilters)
+  useEffect(() => { setLocalMin(String(minPrice)); }, [minPrice]);
+  useEffect(() => { setLocalMax(String(maxPrice)); }, [maxPrice]);
+
+  const availableBrands = useMemo(
+    () => [...new Set(products.map(p => p.brand).filter(Boolean))].slice(0, 15),
+    [products]
+  );
 
   useEffect(() => {
     setLoading(true);
     fetch('https://dummyjson.com/products?limit=100')
-      .then((res) => res.json())
-      .then((data) => {
-        setProducts(data.products);
-        setLoading(false);
-      });
+      .then(r => r.json())
+      .then(d => { setProducts(d.products); setLoading(false); });
   }, []);
 
-  const filteredProducts = products.filter(product => {
-    const matchesSearch = product.title.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesCategory = category === 'all' || product.category === category;
-    const matchesPrice = product.price <= priceRange;
-    return matchesSearch && matchesCategory && matchesPrice;
-  });
-
-  const handleAddToCart = (e, product) => {
-    e.preventDefault();
-    dispatch(addToCart(product));
-    toast.success(`${product.title} added to cart!`, {
-      style: {
-        background: 'var(--bg-glass-heavy)',
-        color: 'white',
-        backdropFilter: 'blur(10px)',
-        border: '1px solid var(--border-soft)',
-        borderRadius: '16px'
-      },
-      icon: <ShoppingCart size={20} color="var(--primary-light)" />,
+  const filtered = useMemo(() => {
+    let list = products.filter(p => {
+      if (searchTerm && !p.title.toLowerCase().includes(searchTerm.toLowerCase())) return false;
+      if (categories.length && !categories.includes(p.category)) return false;
+      if (brands.length    && !brands.includes(p.brand))         return false;
+      if (p.price < minPrice || p.price > maxPrice)              return false;
+      return true;
     });
+    if (sortBy === 'price-asc')  list = [...list].sort((a, b) => a.price - b.price);
+    if (sortBy === 'price-desc') list = [...list].sort((a, b) => b.price - a.price);
+    if (sortBy === 'rating')     list = [...list].sort((a, b) => b.rating - a.rating);
+    return list;
+  }, [products, searchTerm, categories, brands, minPrice, maxPrice, sortBy]);
+
+  const hasFilters = categories.length || brands.length || minPrice > 0 || maxPrice < MAX || searchTerm;
+
+  // Slider thumb %
+  const minPct = ((minPrice - MIN) / (MAX - MIN)) * 100;
+  const maxPct = ((maxPrice - MIN) / (MAX - MIN)) * 100;
+
+  const handleMinSlider = (val) => {
+    const v = Math.min(Number(val), maxPrice - 10);
+    dispatch(setMinPrice(v));
+  };
+  const handleMaxSlider = (val) => {
+    const v = Math.max(Number(val), minPrice + 10);
+    dispatch(setMaxPrice(v));
+  };
+
+  const commitMin = () => {
+    let v = Number(localMin);
+    if (isNaN(v) || v < MIN) v = MIN;
+    if (v >= maxPrice) v = maxPrice - 10;
+    dispatch(setMinPrice(v));
+    setLocalMin(String(v));
+  };
+  const commitMax = () => {
+    let v = Number(localMax);
+    if (isNaN(v) || v > MAX) v = MAX;
+    if (v <= minPrice) v = minPrice + 10;
+    dispatch(setMaxPrice(v));
+    setLocalMax(String(v));
   };
 
   if (loading) return (
-    <div className="loading-container">
-      <div className="loading-spinner"></div>
-    </div>
+    <div className="loading-container"><div className="loading-spinner" /></div>
   );
 
   return (
-    <div className="main-content" style={{ marginTop: '1rem' }}>
-      <div style={{ display: 'grid', gridTemplateColumns: '260px 1fr', gap: '2rem' }}>
-        
-        {/* Sidebar Filters - Sticky Overlay Fix */}
-        <aside style={{ 
-          position: 'sticky', 
-          top: '95px', 
-          height: 'calc(100vh - 120px)', 
-          zIndex: 40 
-        }}>
-          <motion.div 
-            initial={{ opacity: 0, x: -25 }}
-            animate={{ opacity: 1, x: 0 }}
-            className="glass hide-scrollbar"
-            style={{ 
-              padding: '1.5rem', 
-              borderRadius: '1.5rem', 
-              height: '100%', 
-              display: 'flex', 
-              flexDirection: 'column', 
-              gap: '1.25rem',
-              overflowY: 'auto',
-              overflowX: 'hidden'
-            }}
-          >
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', paddingBottom: '0.25rem', flexShrink: 0 }}>
-              <Filter size={18} color="var(--primary)" />
-              <h3 style={{ margin: 0, fontSize: '1.1rem', fontWeight: 700 }}>Filter Products</h3>
-            </div>
+    <div className="main-content" style={{ paddingTop: '2rem', paddingBottom: '5rem' }}>
 
-            {/* Category Filter - Integrated Scrolling */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-              <h4 style={{ fontSize: '0.7rem', color: 'var(--text-tertiary)', textTransform: 'uppercase', letterSpacing: '0.12em', fontWeight: 800 }}>Categories</h4>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.2rem' }}>
-                {categoryMap.map((cat) => (
-                  <button
-                    key={cat.id}
-                    onClick={() => dispatch(setCategory(cat.id))}
-                    style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '0.75rem',
-                      textAlign: 'left',
-                      padding: '0.6rem 0.8rem',
-                      borderRadius: '0.8rem',
-                      background: category === cat.id ? 'var(--primary-glow)' : 'transparent',
-                      border: 'none',
-                      color: category === cat.id ? 'white' : 'var(--text-secondary)',
-                      cursor: 'pointer',
-                      fontSize: '0.9rem',
-                      fontWeight: category === cat.id ? 700 : 500,
-                      transition: 'all 0.2s',
-                      width: '100%'
-                    }}
-                  >
-                    <span style={{ opacity: category === cat.id ? 1 : 0.5, display: 'flex', flexShrink: 0 }}>{cat.icon}</span>
-                    <span style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{cat.label}</span>
-                  </button>
-                ))}
-              </div>
-            </div>
+      {/* ── Breadcrumb ── */}
+      <nav style={{ display: 'flex', alignItems: 'center', gap: '0.375rem', fontSize: '0.75rem', color: 'var(--text-subtle)', marginBottom: '1.5rem' }}>
+        <Link to="/" style={{ color: 'inherit', fontWeight: 600 }}>Home</Link>
+        <ChevronRight size={12} />
+        <span style={{ color: 'var(--text-main)', fontWeight: 700 }}>Shop</span>
+      </nav>
 
-            {/* Price Filter - Solid at bottom if space permits, else scrolls */}
-            <div style={{ marginTop: 'auto', paddingTop: '1.25rem', borderTop: '1px solid var(--border-soft)', flexShrink: 0 }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.75rem' }}>
-                <span style={{ fontSize: '0.75rem', color: 'var(--text-tertiary)', textTransform: 'uppercase', fontWeight: 800 }}>Max Price</span>
-                <span style={{ fontWeight: 800, color: 'var(--primary)', fontSize: '1rem' }}>${priceRange}</span>
-              </div>
-              <input 
-                type="range" 
-                min="0" 
-                max="2000" 
-                step="10"
-                value={priceRange}
-                onChange={(e) => dispatch(setPriceRange(parseInt(e.target.value)))}
-                style={{ width: '100%', cursor: 'pointer', accentColor: 'var(--primary)' }}
-              />
-            </div>
+      {/* ── Toolbar ── */}
+      <div style={{
+        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+        gap: '1rem', flexWrap: 'wrap',
+        paddingBottom: '1.25rem', marginBottom: '2rem',
+        borderBottom: '1px solid var(--border-base)',
+      }}>
+        <div>
+          <h1 style={{ fontFamily: '"Cormorant Garamond", Georgia, serif', fontWeight: 400, fontSize: '1.75rem', margin: 0, letterSpacing: '-0.01em' }}>
+            All Products
+            <span style={{ fontFamily: 'Inter, sans-serif', fontWeight: 400, color: 'var(--text-subtle)', fontSize: '0.875rem', marginLeft: '0.625rem' }}>
+              {filtered.length} items
+            </span>
+          </h1>
+        </div>
 
-            {/* Clear All - Floating bottom */}
-            {(category !== 'all' || priceRange < 2000 || searchTerm !== '') && (
-              <button
-                onClick={() => {
-                  dispatch(setCategory('all'));
-                  dispatch(setPriceRange(2000));
-                  dispatch(setSearchTerm(''));
-                }}
-                className="btn-secondary"
-                style={{ width: '100%', padding: '0.6rem', fontSize: '0.85rem', flexShrink: 0 }}
-              >
-                Reset All
-              </button>
-            )}
-          </motion.div>
-        </aside>
-
-        {/* Product Grid Area */}
-        <main>
-          {/* Organized Header */}
-          <div style={{ marginBottom: '2rem' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', gap: '2rem', flexWrap: 'wrap' }}>
-              <div>
-                <h1 style={{ marginBottom: '0.25rem', fontSize: '2.5rem' }}>
-                  Explore <span className="text-gradient">Collections</span>
-                </h1>
-                <p style={{ fontSize: '1rem' }}>
-                  Showing {filteredProducts.length} premium pieces
-                </p>
-              </div>
-
-              <div className="glass" style={{ 
-                display: 'flex', 
-                alignItems: 'center', 
-                padding: '0.6rem 1.25rem', 
-                borderRadius: '1.25rem',
-                width: '100%',
-                maxWidth: '380px',
-                background: 'rgba(255,255,255,0.02)'
-              }}>
-                <Search size={18} color="var(--text-tertiary)" />
-                <input 
-                  type="text" 
-                  placeholder="Search catalog..." 
-                  value={searchTerm}
-                  onChange={(e) => dispatch(setSearchTerm(e.target.value))}
-                  style={{ 
-                    background: 'transparent', 
-                    border: 'none', 
-                    color: 'white', 
-                    marginLeft: '0.75rem', 
-                    flex: 1, 
-                    outline: 'none',
-                    fontSize: '1rem'
-                  }}
-                />
-              </div>
-            </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.625rem', flexWrap: 'wrap' }}>
+          {/* Search */}
+          <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
+            <Search size={14} style={{ position: 'absolute', left: '0.75rem', color: 'var(--text-subtle)', pointerEvents: 'none' }} />
+            <input
+              className="input-base"
+              style={{ paddingLeft: '2.25rem', paddingTop: '0.5625rem', paddingBottom: '0.5625rem', width: 210, fontSize: '0.8125rem' }}
+              placeholder="Search products…"
+              value={searchTerm}
+              onChange={e => dispatch(setSearchTerm(e.target.value))}
+            />
           </div>
 
-          {/* Grid */}
-          <AnimatePresence mode='popLayout'>
-            <div className="product-grid">
-              {filteredProducts.map((product, index) => (
-                <motion.div
-                  key={product.id}
-                  layout
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, scale: 0.95 }}
-                  transition={{ delay: index * 0.03, duration: 0.4 }}
-                  className="glass clickable"
-                  style={{ borderRadius: '1.5rem', overflow: 'hidden', height: '100%' }}
-                >
-                  <Link to={`/product/${product.id}`} style={{ textDecoration: 'none', color: 'inherit' }}>
-                    <div style={{ position: 'relative', paddingTop: '100%', background: 'rgba(255,255,255,0.01)' }}>
-                      <motion.img 
-                        whileHover={{ scale: 1.08 }}
-                        src={product.thumbnail} 
-                        alt={product.title} 
-                        style={{ position: 'absolute', top: '10%', left: '10%', width: '80%', height: '80%', objectFit: 'contain' }} 
-                      />
-                      <div style={{ 
-                        position: 'absolute', top: '1rem', right: '1rem', 
-                        background: 'rgba(15, 23, 42, 0.8)', padding: '4px 10px', 
-                        borderRadius: '0.75rem', fontSize: '0.8rem', fontWeight: 700,
-                        display: 'flex', alignItems: 'center', gap: '4px', border: '1px solid var(--accent-gold)'
-                      }}>
-                        <Star size={14} fill="var(--accent-gold)" color="var(--accent-gold)" />
-                        {product.rating}
-                      </div>
-                    </div>
+          {/* Sort */}
+          <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
+            <select
+              value={sortBy}
+              onChange={e => setSortBy(e.target.value)}
+              style={{
+                appearance: 'none', border: '1px solid var(--border-base)',
+                borderRadius: 'var(--radius-sm)',
+                padding: '0.5625rem 2.25rem 0.5625rem 0.875rem',
+                fontSize: '0.8125rem', color: 'var(--text-muted)',
+                background: 'var(--bg-main)', cursor: 'pointer', outline: 'none',
+                fontFamily: 'Inter, sans-serif',
+              }}
+            >
+              <option value="default">Featured</option>
+              <option value="price-asc">Price: Low → High</option>
+              <option value="price-desc">Price: High → Low</option>
+              <option value="rating">Top Rated</option>
+            </select>
+            <ChevronDown size={12} style={{ position: 'absolute', right: '0.625rem', color: 'var(--text-subtle)', pointerEvents: 'none' }} />
+          </div>
 
-                    <div style={{ padding: '1.5rem', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                      <span style={{ fontSize: '0.7rem', fontWeight: 800, color: 'var(--primary)', textTransform: 'uppercase', letterSpacing: '1px' }}>
-                        {product.category}
-                      </span>
-                      <h3 style={{ fontSize: '1.1rem', lineHeight: '1.4', margin: 0, minHeight: '3rem' }}>{product.title}</h3>
-                      
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '0.5rem' }}>
-                        <span style={{ fontSize: '1.4rem', fontWeight: 800 }}>${product.price}</span>
-                        <motion.button 
-                          whileHover={{ scale: 1.1 }}
-                          whileTap={{ scale: 0.9 }}
-                          onClick={(e) => handleAddToCart(e, product)}
-                          style={{ 
-                            background: 'var(--gradient-base)', border: 'none', 
-                            width: '44px', height: '44px', borderRadius: '1rem', 
-                            display: 'flex', alignItems: 'center', justifyContent: 'center', 
-                            cursor: 'pointer', color: 'white',
-                            boxShadow: '0 4px 12px var(--primary-glow)'
-                          }}
-                        >
-                          <ShoppingCart size={20} />
-                        </motion.button>
-                      </div>
-                    </div>
-                  </Link>
-                </motion.div>
-              ))}
+          {/* Filter toggle */}
+          <button
+            onClick={() => setSidebar(o => !o)}
+            style={{
+              display: 'flex', alignItems: 'center', gap: '0.4rem',
+              border: '1px solid var(--border-base)',
+              borderRadius: 'var(--radius-sm)',
+              background: sidebarOpen ? 'var(--text-main)' : 'transparent',
+              color: sidebarOpen ? 'white' : 'var(--text-muted)',
+              padding: '0.5625rem 0.875rem',
+              fontSize: '0.8125rem', fontWeight: 600,
+              cursor: 'pointer',
+              letterSpacing: '0.04em',
+              transition: 'all var(--duration) var(--ease)',
+            }}
+          >
+            <SlidersHorizontal size={14} strokeWidth={1.75} />
+            Filters
+            {hasFilters && (
+              <span style={{
+                background: sidebarOpen ? 'white' : 'var(--text-main)',
+                color: sidebarOpen ? 'var(--text-main)' : 'white',
+                borderRadius: '99px', minWidth: 18, height: 18,
+                display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+                fontSize: '0.6rem', fontWeight: 800,
+              }}>
+                {categories.length + brands.length + (minPrice > 0 || maxPrice < MAX ? 1 : 0) + (searchTerm ? 1 : 0)}
+              </span>
+            )}
+          </button>
+
+          {hasFilters && (
+            <button onClick={() => dispatch(clearFilters())} className="btn-ghost" style={{ color: 'var(--accent-red)', fontSize: '0.8125rem' }}>
+              <X size={13} /> Clear
+            </button>
+          )}
+        </div>
+      </div>
+
+      {/* ── Active filter chips ── */}
+      {(categories.length > 0 || brands.length > 0 || minPrice > 0 || maxPrice < MAX) && (
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.375rem', marginBottom: '1.5rem' }}>
+          {searchTerm && (
+            <Chip label={`"${searchTerm}"`} onRemove={() => dispatch(setSearchTerm(''))} />
+          )}
+          {(minPrice > 0 || maxPrice < MAX) && (
+            <Chip label={`$${minPrice} – $${maxPrice}`} onRemove={() => { dispatch(setMinPrice(0)); dispatch(setMaxPrice(MAX)); }} />
+          )}
+          {categories.map(c => (
+            <Chip key={c} label={CATEGORIES.find(x => x.id === c)?.label || c} onRemove={() => dispatch(toggleCategory(c))} />
+          ))}
+          {brands.map(b => (
+            <Chip key={b} label={b} onRemove={() => dispatch(toggleBrand(b))} />
+          ))}
+        </div>
+      )}
+
+      {/* ── Main layout ── */}
+      <div style={{ display: 'grid', gridTemplateColumns: sidebarOpen ? '240px 1fr' : '1fr', gap: '3rem' }}>
+
+        {/* ── Sidebar ── */}
+        <AnimatePresence initial={false}>
+          {sidebarOpen && (
+            <motion.aside
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -20 }}
+              transition={{ duration: 0.22 }}
+              className="hide-scrollbar"
+              style={{ position: 'sticky', top: '88px', height: 'calc(100vh - 112px)', overflowY: 'auto' }}
+            >
+
+              {/* ── PRICE RANGE ── */}
+              <SidebarSection title="Price Range">
+                {/* Typed inputs */}
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.625rem', marginBottom: '1.25rem' }}>
+                  <div>
+                    <label style={{ display: 'block', fontSize: '0.6rem', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--text-subtle)', marginBottom: '0.375rem' }}>Min ($)</label>
+                    <input
+                      type="number"
+                      min={MIN} max={MAX}
+                      value={localMin}
+                      onChange={e => setLocalMin(e.target.value)}
+                      onBlur={commitMin}
+                      onKeyDown={e => e.key === 'Enter' && commitMin()}
+                      style={{
+                        width: '100%', padding: '0.5rem 0.625rem',
+                        border: '1px solid var(--border-base)',
+                        borderRadius: 'var(--radius-sm)',
+                        fontSize: '0.875rem', fontWeight: 600,
+                        color: 'var(--text-main)', background: 'var(--bg-main)',
+                        outline: 'none', transition: 'border-color var(--duration)',
+                        fontFamily: 'Inter, sans-serif',
+                      }}
+                      onFocus={e => e.target.style.borderColor = 'var(--text-main)'}
+                      onBlurCapture={e => e.target.style.borderColor = 'var(--border-base)'}
+                    />
+                  </div>
+                  <div>
+                    <label style={{ display: 'block', fontSize: '0.6rem', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--text-subtle)', marginBottom: '0.375rem' }}>Max ($)</label>
+                    <input
+                      type="number"
+                      min={MIN} max={MAX}
+                      value={localMax}
+                      onChange={e => setLocalMax(e.target.value)}
+                      onBlur={commitMax}
+                      onKeyDown={e => e.key === 'Enter' && commitMax()}
+                      style={{
+                        width: '100%', padding: '0.5rem 0.625rem',
+                        border: '1px solid var(--border-base)',
+                        borderRadius: 'var(--radius-sm)',
+                        fontSize: '0.875rem', fontWeight: 600,
+                        color: 'var(--text-main)', background: 'var(--bg-main)',
+                        outline: 'none', transition: 'border-color var(--duration)',
+                        fontFamily: 'Inter, sans-serif',
+                      }}
+                      onFocus={e => e.target.style.borderColor = 'var(--text-main)'}
+                      onBlurCapture={e => e.target.style.borderColor = 'var(--border-base)'}
+                    />
+                  </div>
+                </div>
+
+                {/* Dual-range slider track */}
+                <div style={{ position: 'relative', height: 28, marginBottom: '0.375rem' }}>
+                  {/* Track base */}
+                  <div style={{ position: 'absolute', top: '50%', left: 0, right: 0, height: 3, background: 'var(--border-base)', borderRadius: 99, transform: 'translateY(-50%)' }} />
+                  {/* Active range fill */}
+                  <div style={{
+                    position: 'absolute', top: '50%', transform: 'translateY(-50%)',
+                    height: 3, borderRadius: 99, background: 'var(--text-main)',
+                    left: `${minPct}%`, right: `${100 - maxPct}%`,
+                  }} />
+                  {/* Min thumb */}
+                  <input
+                    type="range" min={MIN} max={MAX} step={10}
+                    value={minPrice}
+                    onChange={e => handleMinSlider(e.target.value)}
+                    style={{
+                      position: 'absolute', width: '100%', height: '100%',
+                      top: 0, left: 0, margin: 0,
+                      appearance: 'none', background: 'transparent', cursor: 'pointer',
+                      pointerEvents: 'auto', zIndex: 3,
+                    }}
+                  />
+                  {/* Max thumb */}
+                  <input
+                    type="range" min={MIN} max={MAX} step={10}
+                    value={maxPrice}
+                    onChange={e => handleMaxSlider(e.target.value)}
+                    style={{
+                      position: 'absolute', width: '100%', height: '100%',
+                      top: 0, left: 0, margin: 0,
+                      appearance: 'none', background: 'transparent', cursor: 'pointer',
+                      pointerEvents: 'auto', zIndex: 4,
+                    }}
+                  />
+                </div>
+
+                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                  <span style={{ fontSize: '0.7rem', color: 'var(--text-subtle)' }}>${MIN}</span>
+                  <span style={{ fontSize: '0.7rem', fontWeight: 700, color: 'var(--text-muted)' }}>${minPrice} – ${maxPrice}</span>
+                  <span style={{ fontSize: '0.7rem', color: 'var(--text-subtle)' }}>${MAX}</span>
+                </div>
+
+                {/* Preset chips */}
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.375rem', marginTop: '0.875rem' }}>
+                  {[
+                    { label: 'Under $50',  min: 0, max: 50 },
+                    { label: '$50–$200',   min: 50, max: 200 },
+                    { label: '$200–$500',  min: 200, max: 500 },
+                    { label: 'Over $500',  min: 500, max: 2000 },
+                  ].map(pre => {
+                    const active = minPrice === pre.min && maxPrice === pre.max;
+                    return (
+                      <button
+                        key={pre.label}
+                        onClick={() => { dispatch(setMinPrice(pre.min)); dispatch(setMaxPrice(pre.max)); }}
+                        style={{
+                          padding: '0.2rem 0.625rem',
+                          border: `1px solid ${active ? 'var(--text-main)' : 'var(--border-base)'}`,
+                          borderRadius: '99px',
+                          background: active ? 'var(--text-main)' : 'transparent',
+                          color: active ? 'white' : 'var(--text-muted)',
+                          fontSize: '0.7rem', fontWeight: 600,
+                          cursor: 'pointer',
+                          transition: 'all var(--duration) var(--ease)',
+                        }}
+                      >
+                        {pre.label}
+                      </button>
+                    );
+                  })}
+                </div>
+              </SidebarSection>
+
+              {/* ── CATEGORIES ── */}
+              <SidebarSection title="Categories">
+                {CATEGORIES.map(cat => (
+                  <label key={cat.id} style={{ display: 'flex', alignItems: 'center', gap: '0.625rem', cursor: 'pointer', padding: '0.35rem 0', borderBottom: '1px solid var(--border-light)' }}>
+                    <input
+                      type="checkbox"
+                      checked={categories.includes(cat.id)}
+                      onChange={() => dispatch(toggleCategory(cat.id))}
+                      style={{ width: 14, height: 14, accentColor: 'var(--brand)', cursor: 'pointer', flexShrink: 0 }}
+                    />
+                    <span style={{
+                      fontSize: '0.8125rem',
+                      color: categories.includes(cat.id) ? 'var(--text-main)' : 'var(--text-muted)',
+                      fontWeight: categories.includes(cat.id) ? 600 : 400,
+                      transition: 'color var(--duration)',
+                    }}>
+                      {cat.label}
+                    </span>
+                  </label>
+                ))}
+              </SidebarSection>
+
+              {/* ── BRAND ── */}
+              <SidebarSection title="Brand">
+                {availableBrands.map(b => (
+                  <label key={b} style={{ display: 'flex', alignItems: 'center', gap: '0.625rem', cursor: 'pointer', padding: '0.35rem 0', borderBottom: '1px solid var(--border-light)' }}>
+                    <input
+                      type="checkbox"
+                      checked={brands.includes(b)}
+                      onChange={() => dispatch(toggleBrand(b))}
+                      style={{ width: 14, height: 14, accentColor: 'var(--brand)', cursor: 'pointer', flexShrink: 0 }}
+                    />
+                    <span style={{
+                      fontSize: '0.8125rem',
+                      color: brands.includes(b) ? 'var(--text-main)' : 'var(--text-muted)',
+                      fontWeight: brands.includes(b) ? 600 : 400,
+                      transition: 'color var(--duration)',
+                    }}>
+                      {b}
+                    </span>
+                  </label>
+                ))}
+              </SidebarSection>
+
+            </motion.aside>
+          )}
+        </AnimatePresence>
+
+        {/* ── Product Grid ── */}
+        <main>
+          {filtered.length === 0 ? (
+            <div style={{ textAlign: 'center', padding: '8rem 2rem' }}>
+              <p style={{ fontFamily: '"Cormorant Garamond", serif', fontSize: '2.25rem', fontWeight: 400, marginBottom: '0.75rem' }}>Nothing found</p>
+              <p style={{ fontSize: '0.875rem', marginBottom: '2rem' }}>Try adjusting filters or your price range.</p>
+              <button onClick={() => dispatch(clearFilters())} className="btn-secondary">Clear All Filters</button>
             </div>
-          </AnimatePresence>
-
-          {filteredProducts.length === 0 && (
-            <div style={{ textAlign: 'center', padding: '6rem 2rem' }}>
-               <Search size={48} color="var(--text-dim)" style={{ marginBottom: '1rem' }} />
-               <h2>No products match your criteria</h2>
-               <p>Try adjusting your search or filters.</p>
+          ) : (
+            <div style={{
+              display: 'grid',
+              gridTemplateColumns: sidebarOpen ? 'repeat(auto-fill, minmax(195px, 1fr))' : 'repeat(auto-fill, minmax(220px, 1fr))',
+              gap: '1.75rem', rowGap: '3.5rem',
+            }}>
+              {filtered.map(p => <ProductCard key={p.id} product={p} />)}
             </div>
           )}
         </main>
       </div>
+
+      {/* Range input thumb styles */}
+      <style>{`
+        input[type=range]::-webkit-slider-thumb {
+          -webkit-appearance: none;
+          width: 18px; height: 18px;
+          border-radius: 50%;
+          background: white;
+          border: 2px solid #1c1c1e;
+          box-shadow: 0 1px 4px rgba(28,28,30,0.2);
+          cursor: pointer;
+          transition: transform 0.15s ease;
+        }
+        input[type=range]::-webkit-slider-thumb:hover {
+          transform: scale(1.2);
+        }
+        input[type=range]::-moz-range-thumb {
+          width: 18px; height: 18px;
+          border-radius: 50%;
+          background: white;
+          border: 2px solid #1c1c1e;
+          cursor: pointer;
+        }
+        input[type=number]::-webkit-inner-spin-button,
+        input[type=number]::-webkit-outer-spin-button {
+          -webkit-appearance: none; margin: 0;
+        }
+        input[type=number] { -moz-appearance: textfield; }
+      `}</style>
     </div>
   );
-};
+}
 
-export default Shop;
+/* ── Sub-components ── */
+
+function Chip({ label, onRemove }) {
+  return (
+    <span style={{
+      display: 'inline-flex', alignItems: 'center', gap: '0.3rem',
+      background: 'var(--bg-muted)', border: '1px solid var(--border-base)',
+      borderRadius: '99px', padding: '0.2rem 0.625rem 0.2rem 0.75rem',
+      fontSize: '0.72rem', fontWeight: 600, color: 'var(--text-main)',
+    }}>
+      {label}
+      <button
+        onClick={onRemove}
+        style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-subtle)', display: 'flex', padding: 0, lineHeight: 1 }}
+        onMouseOver={e => e.currentTarget.style.color = 'var(--text-main)'}
+        onMouseOut ={e => e.currentTarget.style.color = 'var(--text-subtle)'}
+      >
+        <X size={11} strokeWidth={2.5} />
+      </button>
+    </span>
+  );
+}
+
+function SidebarSection({ title, children }) {
+  const [open, setOpen] = useState(true);
+  return (
+    <div>
+      <button
+        onClick={() => setOpen(o => !o)}
+        style={{
+          width: '100%', display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+          background: 'none', border: 'none', cursor: 'pointer',
+          padding: '0.875rem 0',
+          borderBottom: open ? 'none' : '1px solid var(--border-base)',
+        }}
+      >
+        <span style={{ fontSize: '0.62rem', fontWeight: 800, letterSpacing: '0.16em', textTransform: 'uppercase', color: 'var(--text-muted)' }}>
+          {title}
+        </span>
+        <ChevronDown
+          size={13} strokeWidth={2} color="var(--text-subtle)"
+          style={{ transform: open ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.2s ease' }}
+        />
+      </button>
+      <AnimatePresence initial={false}>
+        {open && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: 'auto', opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.22 }}
+            style={{ overflow: 'hidden' }}
+          >
+            <div style={{ paddingBottom: '1.375rem', borderBottom: '1px solid var(--border-base)' }}>
+              {children}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+}
