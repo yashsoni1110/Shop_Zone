@@ -16,7 +16,7 @@ The app should have:
 - An about us page and contact page
 - React Router for navigation
 - Use the DummyJSON API (https://dummyjson.com/products) for product data
-- Use React Context API for global cart state management
+- Use Redux Toolkit for global cart and wishlist state management
 ```
 
 ---
@@ -24,30 +24,30 @@ The app should have:
 ## 🎨 UI & Design
 
 ```
-Apply a premium dark theme to the entire app with the following design language:
-- Deep slate/navy dark background (#0f172a, #1e293b)
-- Indigo-to-purple gradient accents
-- Glassmorphism cards (backdrop-filter: blur, translucent borders)
-- CSS variables for consistent theming across all components
-- Google Fonts: "Inter" for body text
+Apply a premium editorial black & white theme to the entire app inspired by KLUR, The Row, Celine, Jil Sander:
+- Warm white / ivory backgrounds (#ffffff, #faf9f7)
+- Soft charcoal text (#1c1c1e)
+- CSS variables for consistent theming
+- Google Fonts: "Cormorant Garamond" for headings (serif), "Inter" for body
+- Glassmorphism navbar (backdrop-filter blur + semi-transparent)
 - Smooth hover transitions and micro-animations on all interactive elements
 ```
 
 ```
 Create an animated Hero section for the home page with:
-- A large heading with a gradient text span
-- A subtitle paragraph
+- A full-bleed editorial black & white background image
+- A large serif heading with letter-spacing
 - Two CTA buttons: "Explore Collection" and "Our Story"
-- Two abstract radial gradient blobs in the background that slowly pulse
 - Framer Motion fade-in and slide-up animations on mount
 ```
 
 ```
 Style the Navbar component with:
-- A glassmorphism background (frosted glass effect) that locks to the top
-- Brand logo/name on the left
-- Navigation links (Home, Shop, About, Contact) in the center/right
-- A cart icon with a live item count badge
+- A glassmorphism background (frosted glass effect) that sticks to the top
+- SVG monogram logo + "SHOPZONE" wordmark on the left
+- Navigation links (Shop, About, Contact) in the center — hidden on mobile
+- Search, Wishlist (heart), and Cart (bag button desktop / icon mobile) on the right
+- Hamburger menu icon on the extreme right for mobile only
 - Smooth underline hover effect on nav links
 ```
 
@@ -56,32 +56,41 @@ Style the Navbar component with:
 ## 🛒 Features
 
 ```
-Build a CartContext using React's Context API and useReducer.
-It should support the following actions:
-- ADD_TO_CART: Add a product, or increase quantity if it already exists
-- REMOVE_FROM_CART: Remove a product entirely from the cart
-- UPDATE_QUANTITY: Increase or decrease the quantity of a specific item
-- CLEAR_CART: Empty the entire cart
-Persist the cart to localStorage so it survives page refreshes.
+Build a Redux Toolkit store with:
+- cartSlice: ADD_TO_CART (with quantity increment), REMOVE_FROM_CART, UPDATE_QUANTITY, CLEAR_CART
+- wishlistSlice: toggle item in/out of wishlist
+- filterSlice: categories, brands, price range, search term filters
+Persist cart and wishlist to localStorage via redux-persist or manual hydration.
 ```
 
 ```
 Create a reusable ProductCard component that displays:
-- Product thumbnail image
-- Product title (truncated to 2 lines)
-- Star rating display
-- Price formatted with a dollar sign
-- An "Add to Cart" button that triggers a react-hot-toast notification on click
-- A hover effect that lifts the card slightly with a glowing box-shadow
+- Product thumbnail image with a 133% aspect-ratio box
+- Discount badge (top-left) when discount >= 10%
+- Wishlist (heart) button (top-right, always visible)
+- Cart icon button (top-right, mobile only — shown next to heart)
+- "Add to Bag" hover overlay button (desktop only — slides up on hover)
+- Brand/category label, product title (truncated), price + struck-out original price
+- Framer Motion scale on hover
 ```
 
 ```
 Build the Shop page with:
-- A search bar to filter products by name
-- Category filter buttons (All, Smartphones, Laptops, Fragrances, etc.)
-- Products fetched from DummyJSON API filtered on category change
-- A responsive product grid (auto-fit minmax 280px)
-- A loading skeleton or spinner while data is fetching
+- A search bar + sort dropdown + Filters toggle button in the toolbar
+- "All Products" heading hidden on mobile
+- Filter sidebar (category, brand, price range checkboxes) - default OFF/closed
+- Sidebar is sticky on desktop (position: sticky), non-sticky on mobile
+- Products fetched from DummyJSON API with client-side filtering
+- Active filter chips displayed below the toolbar
+- 2-column product grid on mobile, auto-fill on desktop
+- Loading spinner while data is fetching
+```
+
+```
+Add a Wishlist page that:
+- Shows all wishlisted products in a responsive grid
+- Allows removing items from wishlist
+- Shows an empty state with a link back to Shop
 ```
 
 ---
@@ -89,29 +98,58 @@ Build the Shop page with:
 ## 📄 Pages
 
 ```
-Create an About Us page for Shop Zone with:
+Create an About Us page with:
 - A hero section explaining the brand mission
-- A "Why Choose Us" section with 3-4 feature cards (Quality, Speed, Support, Security)
-- A team or brand values section
+- Stats grid (4-col desktop, 2-col mobile): Products, Brands, Customers, Countries
+- "Why we started ShopZone" section with image + text (2-col desktop, 1-col mobile)
+- Meet the Team section (3-col desktop, 2-col mobile)
 - Framer Motion scroll-triggered animations on all sections
-- Premium glassmorphism card styling consistent with the rest of the app
 ```
 
 ```
 Build a Contact page with:
-- A styled contact form (Name, Email, Subject, Message fields)
+- Left column: contact info (address, phone, email, hours) with lucide-react icons
+- Right column: styled contact form (First Name / Last Name grid → 1-col mobile,
+  Email, Subject, Message fields)
 - Form validation and a submit handler that shows a success toast
-- Store contact info on the side (address, phone, email, hours)
-- Icons from lucide-react for each info item
+- Layout: 2-col desktop, 1-col mobile
 ```
 
 ```
 Create a Product Details page that:
 - Fetches the single product from /products/:id
-- Displays the full product image, title, description, price, and rating
-- Has an "Add to Cart" button with a quantity selector
-- Shows related products or a "Back to Shop" link
+- Displays product image (left) + info (right) in a 2-col grid (1-col on mobile)
+- Shows title, brand, rating, price, discount, description
+- Has "Add to Bag" and "Save to Wishlist" buttons
+- Shows a reviews section below
 - Uses Framer Motion for page entry animation
+```
+
+```
+Build a Cart page with:
+- Cart items list (left) + Order Summary sidebar (right) — 2-col desktop, 1-col mobile
+- Each item: thumbnail, title, price, quantity stepper, remove button
+- Summary: subtotal, savings, estimated shipping, total
+- "Proceed to Checkout" button
+```
+
+---
+
+## 📱 Responsive Design
+
+```
+Make the entire app fully responsive for mobile devices:
+- Breakpoints: 900px (tablet), 768px (mobile), 480px (small phone)
+- Use named CSS classes (.shop-main-layout, .product-details-layout, .cart-main-layout,
+  .contact-main-layout, .footer-main-grid, .about-stats-layout, etc.) on grid containers
+- Override inline styles via !important inside media queries
+- product-grid and shop-product-grid: 2 columns on mobile (1fr 1fr)
+- .desktop-only { display: flex } → display: none on mobile
+- .mobile-only { display: none } → display: flex on mobile
+- .nav-desktop-links hidden on mobile; .nav-hamburger shown on mobile
+- Sidebar becomes non-sticky on mobile
+- Footer stacks to 1 column on mobile
+- Padding reduced: 1.25rem at 900px, 0.875rem at 768px
 ```
 
 ---
@@ -119,31 +157,50 @@ Create a Product Details page that:
 ## 🔧 Enhancement Prompts
 
 ```
-Add a comprehensive global footer to the app with:
-- Brand logo and tagline on the left
+Add a comprehensive global footer with:
+- Dark background (#1c1c1e)
+- Brand logo + tagline on the left
 - Navigation columns (Shop, Company, Support) with links
 - Social media icon links
-- A newsletter email signup input
+- Newsletter email signup
 - Copyright notice at the bottom
-- Consistent dark glassmorphism styling
+- footer-main-grid class: 1.75fr repeat(3,1fr) desktop → 1col mobile
 ```
 
 ```
-Add a "New Arrivals" and "Best Sellers" section on the Home page.
-Fetch products from different DummyJSON endpoints or different skip values.
-Display them in a horizontal scrolling row or a 4-column grid.
-Add a "View All" link that goes to the /shop page.
+Implement a working mobile hamburger menu in the Navbar:
+- Slides in from the right as a full-screen overlay
+- Shows Shop, About, Contact as large serif links
+- Close (X) button in the top-right
+- Framer Motion slide-in animation (x: 100% → 0)
+- Auto-closes on route change (useEffect on pathname)
+- Extra links: Wishlist (count) and Cart (count) in the menu
 ```
 
 ```
-Polish all animations across the site using Framer Motion:
-- Use variants with staggerChildren for grid sections
-- Use whileInView with once: true for scroll-triggered reveals
-- Add whileHover={{ y: -5 }} to all cards
-- Add whileTap={{ scale: 0.95 }} to all buttons
-- Keep transition durations between 0.4s and 0.8s for a premium feel
+Add a ScrollToTop component that:
+- Uses useLocation() from react-router-dom
+- On every pathname change, calls window.scrollTo({ top: 0, behavior: 'instant' })
+- Is placed inside <Router> in App.jsx, above <Navbar>
+- Ensures every page always opens from the very top
+```
+
+```
+Polish all grid layouts across the site using CSS classes instead of inline styles:
+- .shop-main-layout → 240px 1fr (sidebar + products), 1fr on mobile
+- .shop-product-grid → auto-fill minmax desktop, 1fr 1fr on mobile
+- .product-details-layout → 1fr 1fr, 1fr on mobile
+- .cart-main-layout → 1fr 360px, 1fr on mobile
+- .contact-main-layout → 1fr 1.5fr, 1fr on mobile
+- .contact-names-grid → 1fr 1fr, 1fr on mobile
+- .features-bar → repeat(4,1fr), 2-col mobile, 1-col at 480px
+- .categories-layout → 1fr 1fr 1fr, 1fr on mobile
+- .about-stats-layout → repeat(4,1fr), 2-col mobile
+- .about-story-layout → 1fr 1fr, 1fr on mobile
+- .about-team-layout → repeat(3,1fr), 2-col mobile
+- .footer-main-grid → 1.75fr repeat(3,1fr), 1fr on mobile
 ```
 
 ---
 
-> 💡 **Tip:** When asking AI to make changes, always specify the file name, the component name, and the exact behavior you want. The more specific you are, the better the result.
+> 💡 **Tip:** When asking AI to make changes, always specify the file name, the component name, and the exact behavior you want. Be specific about mobile vs desktop behavior, class names you want used, and which breakpoints matter. The more specific you are, the better the result.
