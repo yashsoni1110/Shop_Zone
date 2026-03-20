@@ -320,7 +320,8 @@ input[type="checkbox"] {
   .main-content { padding-left: 0.875rem !important; padding-right: 0.875rem !important; }
 
   /* Products: 2 columns */
-  .product-grid {
+  .product-grid,
+  .shop-product-grid {
     grid-template-columns: 1fr 1fr !important;
     gap: 0.625rem !important;
     row-gap: 1.5rem !important;

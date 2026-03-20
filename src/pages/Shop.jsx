@@ -429,7 +429,7 @@ export default function Shop() {
               <button onClick={() => dispatch(clearFilters())} className="btn-secondary">Clear All Filters</button>
             </div>
           ) : (
-            <div style={{
+            <div className="shop-product-grid" style={{
               display: 'grid',
               gridTemplateColumns: sidebarOpen ? 'repeat(2, 1fr)' : 'repeat(auto-fill, minmax(220px, 1fr))',
               gap: '1.25rem', rowGap: '3rem',
