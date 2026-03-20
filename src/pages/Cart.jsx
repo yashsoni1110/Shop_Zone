@@ -37,7 +37,7 @@ export default function Cart() {
         </span>
       </h1>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 360px', gap: '3rem', alignItems: 'start' }}>
+      <div className="cart-main-layout" style={{ display: 'grid', gridTemplateColumns: '1fr 360px', gap: '3rem', alignItems: 'start' }}>
 
         {/* ── Items ── */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '0' }}>

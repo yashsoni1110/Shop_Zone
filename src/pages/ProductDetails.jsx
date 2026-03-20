@@ -60,11 +60,11 @@ export default function ProductDetails() {
         <ArrowLeft size={16} /> Back to Shop
       </Link>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '5rem', alignItems: 'start' }}>
+      <div className="product-details-layout" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '5rem', alignItems: 'start' }}>
 
         {/* ── Image ── */}
         <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.4 }}>
-          <div style={{ background: 'var(--bg-subtle)', borderRadius: 'var(--radius-xl)', border: '1px solid var(--border-base)', overflow: 'hidden', height: 480, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '2rem' }}>
+          <div className="product-image-box" style={{ background: 'var(--bg-subtle)', borderRadius: 'var(--radius-xl)', border: '1px solid var(--border-base)', overflow: 'hidden', height: 480, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '2rem' }}>
             <motion.img
               whileHover={{ scale: 1.04 }}
               transition={{ duration: 0.4 }}

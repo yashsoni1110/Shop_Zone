@@ -35,7 +35,7 @@ export default function Contact() {
 
       {/* ── Content ── */}
       <div className="main-content" style={{ padding: '5rem 2rem' }}>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1.5fr', gap: '5rem', alignItems: 'start' }}>
+        <div className="contact-main-layout" style={{ display: 'grid', gridTemplateColumns: '1fr 1.5fr', gap: '5rem', alignItems: 'start' }}>
 
           {/* Left: Contact info */}
           <div>
@@ -59,7 +59,7 @@ export default function Contact() {
           <div style={{ background: 'var(--bg-subtle)', border: '1px solid var(--border-base)', borderRadius: 'var(--radius-lg)', padding: '2.5rem' }}>
             <h2 style={{ fontSize: '1.25rem', fontWeight: 800, marginBottom: '2rem' }}>Send a message</h2>
             <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+              <div className="contact-names-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
                 <FormGroup label="First Name">
                   <input className="input-base" type="text" placeholder="John" required />
                 </FormGroup>

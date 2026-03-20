@@ -39,7 +39,7 @@ export default function About() {
       {/* ── Stats ── */}
       <section style={{ borderBottom: '1px solid var(--border-base)' }}>
         <div className="main-content" style={{ padding: '3.5rem 2rem' }}>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '2rem', textAlign: 'center' }}>
+          <div className="about-stats-layout" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '2rem', textAlign: 'center' }}>
             {stats.map(({ value, label }) => (
               <div key={label}>
                 <p style={{ fontSize: 'clamp(1.75rem, 3vw, 2.5rem)', fontWeight: 900, color: 'var(--text-main)', margin: '0 0 0.25rem' }}>{value}</p>
@@ -53,7 +53,7 @@ export default function About() {
       {/* ── Our Story ── */}
       <section>
         <div className="main-content" style={{ padding: '5rem 2rem' }}>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '5rem', alignItems: 'center' }}>
+          <div className="about-story-layout" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '5rem', alignItems: 'center' }}>
             <div>
               <h2 style={{ marginBottom: '1.25rem' }}>Why we started ShopZone</h2>
               <p style={{ marginBottom: '1rem' }}>
@@ -86,7 +86,7 @@ export default function About() {
             <h2 style={{ marginBottom: '0.5rem' }}>Meet the Team</h2>
             <p>The people behind ShopZone.</p>
           </div>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '2rem' }}>
+          <div className="about-team-layout" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '2rem' }}>
             {team.map(({ name, role, img }) => (
               <div key={name} style={{ textAlign: 'center' }}>
                 <div style={{ width: 96, height: 96, borderRadius: '50%', overflow: 'hidden', margin: '0 auto 1rem', border: '2px solid var(--border-base)' }}>

@@ -42,7 +42,7 @@ export default function Shop() {
   const dispatch = useDispatch();
   const [products, setProducts]   = useState([]);
   const [loading, setLoading]     = useState(true);
-  const [sidebarOpen, setSidebar] = useState(true);
+  const [sidebarOpen, setSidebar] = useState(false);
   const [sortBy, setSortBy]       = useState('default');
 
   const { categories, brands, minPrice, maxPrice, searchTerm } =
@@ -235,7 +235,7 @@ export default function Shop() {
       )}
 
       {/* ── Main layout ── */}
-      <div style={{ display: 'grid', gridTemplateColumns: sidebarOpen ? '240px 1fr' : '1fr', gap: '3rem' }}>
+      <div className="shop-main-layout" style={{ display: 'grid', gridTemplateColumns: sidebarOpen ? '240px 1fr' : '1fr', gap: '3rem', alignItems: 'start' }}>
 
         {/* ── Sidebar ── */}
         <AnimatePresence initial={false}>
@@ -245,7 +245,7 @@ export default function Shop() {
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: -20 }}
               transition={{ duration: 0.22 }}
-              className="hide-scrollbar"
+              className="hide-scrollbar shop-sidebar-panel"
               style={{ position: 'sticky', top: '88px', height: 'calc(100vh - 112px)', overflowY: 'auto' }}
             >
 
@@ -431,8 +431,8 @@ export default function Shop() {
           ) : (
             <div style={{
               display: 'grid',
-              gridTemplateColumns: sidebarOpen ? 'repeat(auto-fill, minmax(195px, 1fr))' : 'repeat(auto-fill, minmax(220px, 1fr))',
-              gap: '1.75rem', rowGap: '3.5rem',
+              gridTemplateColumns: sidebarOpen ? 'repeat(2, 1fr)' : 'repeat(auto-fill, minmax(220px, 1fr))',
+              gap: '1.25rem', rowGap: '3rem',
             }}>
               {filtered.map(p => <ProductCard key={p.id} product={p} />)}
             </div>

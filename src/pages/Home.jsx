@@ -33,7 +33,7 @@ export default function Home() {
       {/* ══════════════════════════════════════
           HERO — full bleed editorial B&W
           ══════════════════════════════════════ */}
-      <section style={{ position: 'relative', height: '92vh', overflow: 'hidden', background: '#1c1c1e' }}>
+      <section className="hero-section" style={{ position: 'relative', height: '92vh', overflow: 'hidden', background: '#1c1c1e' }}>
         <img
           src="https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=1800&q=90"
           alt="Hero"
@@ -92,7 +92,7 @@ export default function Home() {
           ══════════════════════════════════════ */}
       <section style={{ borderBottom: '1px solid var(--border-base)', background: 'var(--bg-subtle)' }}>
         <div className="main-content" style={{ padding: '1.25rem 2.5rem' }}>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: '0', borderLeft: '1px solid var(--border-base)' }}>
+          <div className="features-bar" style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: '0', borderLeft: '1px solid var(--border-base)' }}>
             {features.map(({ icon: Icon, text }) => (
               <div key={text} style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', padding: '1rem 1.5rem', borderRight: '1px solid var(--border-base)' }}>
                 <Icon size={16} strokeWidth={1.5} color="var(--text-subtle)" style={{ flexShrink: 0 }} />
@@ -123,7 +123,7 @@ export default function Home() {
             </Link>
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '1.5rem' }}>
+          <div className="categories-layout" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '1.5rem' }}>
             {categories.map((cat, i) => (
               <Link to="/shop" key={i}>
                 <motion.div
