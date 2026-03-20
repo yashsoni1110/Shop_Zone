@@ -235,18 +235,29 @@ export default function Shop() {
       )}
 
       {/* ── Main layout ── */}
-      <div className="shop-main-layout" style={{ display: 'grid', gridTemplateColumns: sidebarOpen ? '240px 1fr' : '1fr', gap: '3rem', alignItems: 'start' }}>
+      <div className="shop-main-layout" style={{
+        display: 'grid',
+        gridTemplateColumns: sidebarOpen ? '240px 1fr' : '1fr',
+        gap: '3rem',
+        alignItems: 'start',
+        transition: 'grid-template-columns 0.22s ease',
+      }}>
 
         {/* ── Sidebar ── */}
         <AnimatePresence initial={false}>
           {sidebarOpen && (
             <motion.aside
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -20 }}
+              initial={{ opacity: 0, width: 0 }}
+              animate={{ opacity: 1, width: 240 }}
+              exit={{ opacity: 0, width: 0 }}
               transition={{ duration: 0.22 }}
               className="hide-scrollbar shop-sidebar-panel"
-              style={{ position: 'sticky', top: '88px', height: 'calc(100vh - 112px)', overflowY: 'auto' }}
+              style={{
+                position: 'sticky', top: '88px',
+                height: 'calc(100vh - 112px)', overflowY: 'auto',
+                overflowX: 'hidden',
+                minWidth: 0,
+              }}
             >
 
               {/* ── PRICE RANGE ── */}
@@ -431,7 +442,7 @@ export default function Shop() {
           ) : (
             <div className="shop-product-grid" style={{
               display: 'grid',
-              gridTemplateColumns: sidebarOpen ? 'repeat(2, 1fr)' : 'repeat(auto-fill, minmax(220px, 1fr))',
+              gridTemplateColumns: sidebarOpen ? 'repeat(4, 1fr)' : 'repeat(auto-fill, minmax(220px, 1fr))',
               gap: '1.25rem', rowGap: '3rem',
             }}>
               {filtered.map(p => <ProductCard key={p.id} product={p} />)}
