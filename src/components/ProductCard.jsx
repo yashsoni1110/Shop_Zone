@@ -30,8 +30,8 @@ export default function ProductCard({ product }) {
   const originalPrice = (product.price / (1 - product.discountPercentage / 100)).toFixed(0);
 
   return (
-    <Link to={`/product/${product.id}`} style={{ display: 'block', color: 'inherit' }}>
-      <motion.div whileHover="hover">
+    <Link to={`/product/${product.id}`} style={{ display: 'block', color: 'inherit', minWidth: 0 }}>
+      <motion.div whileHover="hover" style={{ minWidth: 0 }}>
 
         {/* ── Image ── */}
         <div style={{ position: 'relative', overflow: 'hidden', paddingTop: '133%', background: 'var(--bg-subtle)' }}>
@@ -53,36 +53,59 @@ export default function ProductCard({ product }) {
           {/* Discount badge */}
           {product.discountPercentage >= 10 && (
             <span style={{
-              position: 'absolute', top: '0.75rem', left: '0.75rem',
+              position: 'absolute', top: '0.5rem', left: '0.5rem',
               background: 'var(--bg-dark)', color: 'white',
-              fontSize: '0.6rem', fontWeight: 700, letterSpacing: '0.08em',
-              padding: '3px 8px',
+              fontSize: '0.55rem', fontWeight: 700, letterSpacing: '0.08em',
+              padding: '2px 6px',
             }}>
               −{Math.round(product.discountPercentage)}%
             </span>
           )}
 
-          {/* Wishlist */}
-          <button
-            onClick={handleWishlist}
-            style={{
-              position: 'absolute', top: '0.75rem', right: '0.75rem',
-              width: 32, height: 32,
-              background: 'rgba(255,255,255,0.88)', border: 'none',
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              cursor: 'pointer', transition: 'background var(--duration)',
-            }}
-            onMouseOver={e => e.currentTarget.style.background = 'white'}
-            onMouseOut ={e => e.currentTarget.style.background = 'rgba(255,255,255,0.88)'}
-          >
-            <Heart size={14} strokeWidth={1.75}
-              fill={isWishlisted ? '#e11d48' : 'transparent'}
-              color={isWishlisted ? '#e11d48' : 'var(--text-muted)'}
-            />
-          </button>
+          {/* Top-right action buttons */}
+          <div style={{ position: 'absolute', top: '0.5rem', right: '0.5rem', display: 'flex', flexDirection: 'column', gap: '0.3rem' }}>
 
-          {/* Add to bag — slides up on hover */}
+            {/* Wishlist — always visible */}
+            <button
+              onClick={handleWishlist}
+              style={{
+                width: 30, height: 30,
+                background: 'rgba(255,255,255,0.92)', border: 'none',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                cursor: 'pointer', transition: 'background var(--duration)',
+                borderRadius: '50%',
+              }}
+              onMouseOver={e => e.currentTarget.style.background = 'white'}
+              onMouseOut ={e => e.currentTarget.style.background = 'rgba(255,255,255,0.92)'}
+            >
+              <Heart size={13} strokeWidth={1.75}
+                fill={isWishlisted ? '#e11d48' : 'transparent'}
+                color={isWishlisted ? '#e11d48' : 'var(--text-muted)'}
+              />
+            </button>
+
+            {/* Cart icon — mobile only */}
+            <button
+              className="mobile-only"
+              onClick={handleAddToCart}
+              style={{
+                width: 30, height: 30,
+                background: 'rgba(255,255,255,0.92)', border: 'none',
+                display: 'none', /* overridden by .mobile-only CSS */
+                alignItems: 'center', justifyContent: 'center',
+                cursor: 'pointer', transition: 'background var(--duration)',
+                borderRadius: '50%',
+              }}
+              onMouseOver={e => e.currentTarget.style.background = 'white'}
+              onMouseOut ={e => e.currentTarget.style.background = 'rgba(255,255,255,0.92)'}
+            >
+              <ShoppingBag size={13} strokeWidth={1.75} color="var(--text-main)" />
+            </button>
+          </div>
+
+          {/* Add to bag — slides up on hover (desktop only) */}
           <motion.div
+            className="desktop-only"
             variants={{ hover: { y: 0, opacity: 1 }, initial: { y: 12, opacity: 0 } }}
             initial="initial"
             style={{
@@ -105,17 +128,17 @@ export default function ProductCard({ product }) {
         </div>
 
         {/* ── Info ── */}
-        <div style={{ paddingTop: '0.875rem' }}>
-          <p style={{ fontSize: '0.6rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.12em', color: 'var(--text-subtle)', margin: '0 0 0.25rem' }}>
+        <div style={{ paddingTop: '0.625rem' }}>
+          <p style={{ fontSize: '0.55rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.12em', color: 'var(--text-subtle)', margin: '0 0 0.2rem' }}>
             {product.brand || product.category}
           </p>
-          <h3 style={{ fontSize: '0.875rem', fontWeight: 500, color: 'var(--text-main)', margin: '0 0 0.5rem', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', fontFamily: 'Inter, sans-serif' }}>
+          <h3 style={{ fontSize: '0.8rem', fontWeight: 500, color: 'var(--text-main)', margin: '0 0 0.35rem', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', fontFamily: 'Inter, sans-serif' }}>
             {product.title}
           </h3>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-            <span style={{ fontSize: '0.9rem', fontWeight: 700, color: 'var(--text-main)' }}>${product.price}</span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', flexWrap: 'wrap' }}>
+            <span style={{ fontSize: '0.85rem', fontWeight: 700, color: 'var(--text-main)' }}>${product.price}</span>
             {product.discountPercentage >= 5 && (
-              <span style={{ fontSize: '0.8rem', color: 'var(--text-subtle)', textDecoration: 'line-through' }}>${originalPrice}</span>
+              <span style={{ fontSize: '0.75rem', color: 'var(--text-subtle)', textDecoration: 'line-through' }}>${originalPrice}</span>
             )}
           </div>
         </div>

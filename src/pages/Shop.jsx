@@ -133,7 +133,7 @@ export default function Shop() {
         paddingBottom: '1.25rem', marginBottom: '2rem',
         borderBottom: '1px solid var(--border-base)',
       }}>
-        <div>
+        <div className="desktop-only" style={{ display: 'flex' }}>
           <h1 style={{ fontFamily: '"Cormorant Garamond", Georgia, serif', fontWeight: 400, fontSize: '1.75rem', margin: 0, letterSpacing: '-0.01em' }}>
             All Products
             <span style={{ fontFamily: 'Inter, sans-serif', fontWeight: 400, color: 'var(--text-subtle)', fontSize: '0.875rem', marginLeft: '0.625rem' }}>
